@@ -31,6 +31,10 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('table-container').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке таблицы:', error);
+                document.getElementById('table-container').innerHTML = '<p>Ошибка загрузки данных.</p>';
             });
     }
 

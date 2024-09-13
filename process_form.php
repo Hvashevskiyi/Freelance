@@ -20,33 +20,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $emailError = "Неверный формат email";
     } else {
         // Проверка на занятость имени
-        $sql = "SELECT id FROM users WHERE name = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $name);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $nameError = "Имя уже занято";
+        try {
+            $sql = "SELECT id FROM users WHERE name = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $name);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $nameError = "Имя уже занято";
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            $nameError = "Ошибка при проверке имени: " . $e->getMessage();
         }
-        $stmt->close();
 
         // Проверка на занятость email
-        $sql = "SELECT id FROM users WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-        if ($stmt->num_rows > 0) {
-            $emailError = "Email уже занят";
+        try {
+            $sql = "SELECT id FROM users WHERE email = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $stmt->store_result();
+            if ($stmt->num_rows > 0) {
+                $emailError = "Email уже занят";
+            }
+            $stmt->close();
+        } catch (Exception $e) {
+            $emailError = "Ошибка при проверке email: " . $e->getMessage();
         }
-        $stmt->close();
 
         // Если нет ошибок, добавляем пользователя
         if (empty($nameError) && empty($emailError)) {
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            if ($stmt) {
+            try {
+                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+                $sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+                $stmt = $conn->prepare($sql);
                 $stmt->bind_param("sss", $name, $email, $passwordHash);
                 if ($stmt->execute()) {
                     // Закрываем подготовленный запрос
@@ -57,8 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 } else {
                     echo "Ошибка выполнения запроса: " . $stmt->error;
                 }
-            } else {
-                echo "Ошибка подготовки запроса: " . $conn->error;
+            } catch (Exception $e) {
+                echo "Ошибка при добавлении пользователя: " . $e->getMessage();
             }
         }
     }

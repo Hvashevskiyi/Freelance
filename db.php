@@ -5,11 +5,13 @@ function getDbConnection() {
     $pass = "";
     $dbname = "freelance_platform";
 
-    $conn = new mysqli($host, $user, $pass, $dbname);
-
-    if ($conn->connect_error) {
-        die("Ошибка подключения: " . $conn->connect_error);
+    try {
+        $conn = new mysqli($host, $user, $pass, $dbname);
+        if ($conn->connect_error) {
+            throw new Exception("Ошибка подключения: " . $conn->connect_error);
+        }
+        return $conn;
+    } catch (Exception $e) {
+        die($e->getMessage());
     }
-
-    return $conn;
 }
