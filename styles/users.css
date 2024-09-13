@@ -1,0 +1,72 @@
+/* users.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    height: 600px; /* Фиксированная высота для формы */
+    background: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    overflow: hidden; /* Обрезает содержимое, если оно выходит за границы */
+    display: flex;
+    flex-direction: column;
+}
+
+h1 {
+    color: #333;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#table-container {
+    flex: 1; /* Позволяет контейнеру таблицы занимать оставшееся место */
+    overflow-y: auto; /* Добавляет вертикальную прокрутку, если таблица не помещается */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* Устанавливает фиксированную ширину таблицы */
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    background-color: #fff;
+    overflow: hidden; /* Предотвращает переполнение текста */
+    text-overflow: ellipsis; /* Добавляет многоточие, если текст выходит за пределы */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+th {
+    background-color: #007bff;
+    color: white;
+}
