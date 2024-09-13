@@ -45,7 +45,7 @@ input.error-input {
 
 button,
 input[type="submit"] {
-    background-color: #28a745;
+    background-color: #28a745; /* Зеленый цвет */
     color: #fff;
     border: none;
     padding: 10px;
@@ -56,16 +56,17 @@ input[type="submit"] {
     text-decoration: none;
     width: 100%;
     box-sizing: border-box;
+    display: inline-block; /* Для выравнивания кнопок в одной строке */
 }
 
 button:hover,
 input[type="submit"]:hover {
-    background-color: #218838;
+    background-color: #218838; /* Темно-зеленый цвет при наведении */
 }
 
 button:disabled,
 input[type="submit"]:disabled {
-    background-color: #c6c6c6;
+    background-color: #c6c6c6; /* Серый цвет для неактивной кнопки */
     cursor: not-allowed;
 }
 
@@ -85,7 +86,7 @@ input[type="submit"]:disabled {
 .form-actions .button,
 .form-actions #submitBtn {
     width: 45%;
-    background-color: #007bff;
+    background-color: #007bff; /* Синий цвет для кнопки "Перейти к списку пользователей" */
     color: #fff;
     border: none;
     padding: 10px;
@@ -95,13 +96,13 @@ input[type="submit"]:disabled {
 }
 
 .form-actions .button:hover {
-    background-color: #0056b3;
+    background-color: #0056b3; /* Темно-синий цвет при наведении */
 }
 
 .form-actions #submitBtn {
-    background-color: #28a745;
+    background-color: #28a745; /* Зеленый цвет для кнопки "Добавить пользователя" */
 }
 
 .form-actions #submitBtn:hover {
-    background-color: #218838;
+    background-color: #218838; /* Темно-зеленый цвет при наведении */
 }

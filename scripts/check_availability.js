@@ -40,8 +40,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Проверка активности кнопки отправки
                     submitButton.disabled = data.nameTaken || data.emailTaken;
+                    if (submitButton.disabled) {
+                        submitButton.classList.add('disabled');
+                    } else {
+                        submitButton.classList.remove('disabled');
+                    }
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
         } else {
             // Если поля пустые, очистим ошибки и активируем кнопку
             document.getElementById('nameError').textContent = '';
@@ -49,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function() {
             nameInput.classList.remove('error-input');
             emailInput.classList.remove('error-input');
             submitButton.disabled = false;
+            submitButton.classList.remove('disabled');
         }
     }
 
