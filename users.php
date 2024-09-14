@@ -20,6 +20,7 @@
     </div>
 </div>
 
+
 <script>
     document.getElementById('search-input').addEventListener('input', function() {
         const query = this.value;
@@ -31,11 +32,38 @@
             .then(response => response.text())
             .then(data => {
                 document.getElementById('table-container').innerHTML = data;
+
+                // Привязываем обработчик событий для кнопок удаления
+                document.querySelectorAll('.delete-btn').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-id');
+                        deleteUser(userId);
+                    });
+                });
             })
             .catch(error => {
                 console.error('Ошибка при загрузке таблицы:', error);
                 document.getElementById('table-container').innerHTML = '<p>Ошибка загрузки данных.</p>';
             });
+    }
+
+    function deleteUser(userId) {
+        if (confirm("Вы уверены, что хотите удалить этого пользователя?")) {
+            fetch('delete_user.php?id=' + encodeURIComponent(userId))
+                .then(response => response.text())
+                .then(data => {
+                    if (data === 'success') {
+                        alert('Пользователь удален.');
+                        fetchTable(''); // Обновляем таблицу после удаления
+                    } else {
+                        alert('Ошибка при удалении пользователя.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении пользователя:', error);
+                    alert('Ошибка при удалении пользователя.');
+                });
+        }
     }
 
     // Заполняем таблицу при загрузке страницы
