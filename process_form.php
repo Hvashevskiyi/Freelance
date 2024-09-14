@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $emailError = "Неверный формат email";
     } else {
         // Проверка на занятость имени
-        try {
+       /* try {
             $sql = "SELECT id FROM users WHERE name = ?";
             $stmt = $conn->prepare($sql);
             $stmt->bind_param("s", $name);
@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->close();
         } catch (Exception $e) {
             $nameError = "Ошибка при проверке имени: " . $e->getMessage();
-        }
+        }*/
 
         // Проверка на занятость email
         try {

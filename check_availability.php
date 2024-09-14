@@ -17,7 +17,7 @@ $emailTaken = false;
 
 try {
     // Проверка занятости имени
-    if ($name) {
+   /* if ($name) {
         $stmt = $conn->prepare("SELECT COUNT(*) FROM users WHERE name = ?");
         $stmt->bind_param("s", $name);
         $stmt->execute();
@@ -25,7 +25,7 @@ try {
         $stmt->fetch();
         $nameTaken = $count > 0;
         $stmt->close();
-    }
+    }*/
 
     // Проверка занятости email
     if ($email) {
