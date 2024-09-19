@@ -22,7 +22,8 @@ if ($result) {
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             echo "<tr><td>" . $row["id"] . "</td><td>" . $row["name"] . "</td><td>" . $row["email"] . "</td>";
-            echo "<td><button class='delete-btn' data-id='" . $row["id"] . "'>Удалить</button></td></tr>";
+            echo "<td><button class='edit-btn' data-id='" . $row["id"] . "'>Редактировать</button> ";
+            echo "<button class='delete-btn' data-id='" . $row["id"] . "'>Удалить</button></td></tr>";
         }
     } else {
         echo "<tr><td colspan='4'>0 результатов</td></tr>";

@@ -20,6 +20,19 @@
     </div>
 </div>
 
+<!-- Всплывающая форма для редактирования пользователя -->
+<div id="edit-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <span id="close-modal" class="close">&times;</span>
+        <h2>Редактировать пользователя</h2>
+        <form id="edit-form">
+            <input type="hidden" id="edit-id">
+            Имя: <input type="text" id="edit-name"><br>
+            Email: <input type="email" id="edit-email"><br>
+            <input type="submit" value="Сохранить">
+        </form>
+    </div>
+</div>
 
 <script>
     document.getElementById('search-input').addEventListener('input', function() {
@@ -38,6 +51,14 @@
                     button.addEventListener('click', function() {
                         const userId = this.getAttribute('data-id');
                         deleteUser(userId);
+                    });
+                });
+
+                // Привязываем обработчик событий для кнопок редактирования
+                document.querySelectorAll('.edit-btn').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-id');
+                        openEditModal(userId);
                     });
                 });
             })
@@ -65,6 +86,58 @@
                 });
         }
     }
+
+    function openEditModal(userId) {
+        // Получаем данные пользователя по id для автоподстановки в форму
+        fetch('get_user.php?id=' + encodeURIComponent(userId))
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('edit-id').value = data.id;
+                document.getElementById('edit-name').value = data.name;
+                document.getElementById('edit-email').value = data.email;
+
+                document.getElementById('edit-modal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Ошибка получения данных пользователя:', error);
+                alert('Ошибка загрузки данных пользователя.');
+            });
+    }
+
+    document.getElementById('edit-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const userId = document.getElementById('edit-id').value;
+        const name = document.getElementById('edit-name').value;
+        const email = document.getElementById('edit-email').value;
+
+        // Отправляем обновленные данные на сервер
+        fetch('update_user.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `id=${encodeURIComponent(userId)}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}`
+        })
+            .then(response => response.text())
+            .then(data => {
+                if (data === 'success') {
+                    alert('Данные пользователя обновлены.');
+                    document.getElementById('edit-modal').style.display = 'none';
+                    fetchTable(''); // Обновляем таблицу после редактирования
+                } else {
+                    alert('Ошибка при обновлении данных.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении данных пользователя:', error);
+                alert('Ошибка при обновлении данных пользователя.');
+            });
+    });
+
+    document.getElementById('close-modal').addEventListener('click', function() {
+        document.getElementById('edit-modal').style.display = 'none';
+    });
 
     // Заполняем таблицу при загрузке страницы
     fetchTable('');
