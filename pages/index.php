@@ -43,7 +43,7 @@ if (isset($_POST['delete']) && isset($_SESSION['user_id'])) {
 </header>
 
 
-<h1>Список пользователей</h1>
+<h1>Список фрилансеров</h1>
 <!-- Поле для поиска -->
 <input type="text" id="searchInput" placeholder="Поиск по имени, email или вакансии" onkeyup="filterUsers()">
 
