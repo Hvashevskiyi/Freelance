@@ -1,0 +1,46 @@
+/* assets/styles/register.css */
+
+@import url('base.css');
+
+h1 {
+    font-size: 2em;
+    text-align: center; /* Центрируем заголовок */
+}
+
+form {
+    width: 80%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение полей */
+    gap: 15px; /* Отступы между элементами формы */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%; /* Устанавливаем одинаковую ширину для всех полей */
+    padding: 10px; /* Добавляем отступы для удобства ввода */
+    margin: 10px auto;
+    border: 1px solid #ccc; /* Рамка */
+    border-radius: 5px; /* Скругление углов */
+}
+
+button {
+    width: 100%;
+    padding: 10px; /* Удобный размер кнопки */
+}
+
+.register-link {
+    text-align: center; /* Центрируем текст */
+    margin-top: 20px; /* Отступ сверху */
+}
+
+.register-link a {
+    color: #007BFF; /* Цвет ссылки */
+    text-decoration: none; /* Убираем подчеркивание */
+}
+
+.register-link a:hover {
+    text-decoration: underline; /* Подчеркивание при наведении */
+}

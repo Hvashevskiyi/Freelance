@@ -29,16 +29,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/styles/base.css">
+    <link rel="stylesheet" href="../assets/styles/login.css">
     <title>Вход</title>
 </head>
 <body>
 <h1>Вход</h1>
-<form method="POST">
+
+<form method="POST" action="login.php">
     <input type="email" name="email" placeholder="Email" required>
     <input type="password" name="password" placeholder="Пароль" required>
     <button type="submit">Войти</button>
 </form>
-<p>Нет аккаунта? <a href="register.php">Зарегистрируйтесь</a></p>
+
+<!-- Сообщение для регистрации -->
+<div class="register-message">
+    Нет аккаунта? <a href="register.php">Зарегистрируйтесь</a>
+</div>
+
 </body>
 </html>
+

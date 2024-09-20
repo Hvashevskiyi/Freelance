@@ -1,0 +1,8 @@
+/* assets/styles/index.css */
+
+@import url('base.css');
+
+h1 {
+    font-size: 2em;
+    margin-top: 40px;
+}

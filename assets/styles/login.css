@@ -1,0 +1,47 @@
+/* assets/styles/login.css */
+
+@import url('base.css');
+
+h1 {
+    font-size: 2em;
+    text-align: center; /* Центрируем заголовок */
+}
+
+form {
+    width: 80%;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение полей */
+    gap: 15px; /* Отступы между элементами формы */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+    width: 100%; /* Устанавливаем одинаковую ширину для всех полей */
+    padding: 10px; /* Добавляем отступы для удобства ввода */
+    border: 1px solid #ccc; /* Рамка */
+    border-radius: 5px; /* Скругление углов */
+}
+
+button {
+    width: 100%;
+    padding: 10px; /* Удобный размер кнопки */
+}
+
+/* Стили для сообщения о регистрации */
+.register-message {
+    text-align: center; /* Центрируем текст */
+    margin-top: 20px; /* Отступ сверху */
+    font-size: 1.2em; /* Увеличиваем размер шрифта */
+}
+
+.register-message a {
+    color: #007bff; /* Цвет ссылки */
+    text-decoration: underline; /* Подчеркивание */
+}
+
+.register-message a:hover {
+    color: #0056b3; /* Цвет ссылки при наведении */
+}

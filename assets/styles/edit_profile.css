@@ -1,0 +1,32 @@
+/* assets/styles/edit_profile.css */
+
+@import url('base.css');
+
+h1 {
+    font-size: 1.8em;
+    text-align: center; /* Центрируем заголовок */
+}
+
+form {
+    width: 80%;
+    margin: 20px auto;
+}
+
+button {
+    width: auto; /* Убираем полную ширину */
+    max-width: 200px; /* Максимальная ширина кнопки */
+    padding: 10px 20px; /* Удобный размер кнопки */
+    margin-top: 10px; /* Отступ сверху для разделения кнопок */
+    cursor: pointer; /* Указатель при наведении */
+    display: block; /* Отображаем кнопки как блочные элементы */
+    margin-left: auto; /* Центрируем кнопки по горизонтали */
+    margin-right: auto; /* Центрируем кнопки по горизонтали */
+}
+
+/* Стили для текстовых полей */
+textarea, input[type="text"] {
+    width: 100%; /* Задаем 100% ширину для текстовых полей */
+    padding: 10px; /* Удобный размер поля */
+    margin-top: 10px; /* Отступ сверху */
+    box-sizing: border-box; /* Учитываем отступы и границы в ширине */
+}
