@@ -1,14 +1,14 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-
+$conn = getDbConnection();
 if (!isset($_GET['id']) || $_SESSION['user_id'] !== intval($_GET['id'])) {
     header("Location: index.php");
     exit;
 }
 
 $userId = intval($_GET['id']);
-$conn = getDbConnection();
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $text = $_POST['text'];

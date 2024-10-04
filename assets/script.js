@@ -5,15 +5,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const confirmPasswordField = document.getElementById('confirm_password');
     const emailError = document.getElementById('emailError'); // Обратите внимание на правильный id
     const passwordError = document.getElementById('passwordError');
-
+    const password8 = document.getElementById('password8');
     // Функция для проверки совпадения паролей
     function checkPasswordMatch() {
-        if (passwordField.value !== confirmPasswordField.value) {
-            passwordError.style.display = 'block';
+        // Проверка длины пароля
+        if (passwordField.value.length < 8 || confirmPasswordField.value.length < 8) {
+            password8.style.display = 'block';  // Показываем сообщение, если длина меньше 8 символов
         } else {
-            passwordError.style.display = 'none';
+            password8.style.display = 'none';  // Скрываем сообщение, если длина нормальная
+
+            // Проверка совпадения паролей
+            if (passwordField.value !== confirmPasswordField.value) {
+                passwordError.style.display = 'block';  // Показываем сообщение о несовпадении паролей
+            } else {
+                passwordError.style.display = 'none';  // Скрываем сообщение, если пароли совпадают
+            }
         }
     }
+
 
     // Обработчики событий для паролей
     passwordField.addEventListener('input', checkPasswordMatch);

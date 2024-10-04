@@ -6,3 +6,62 @@ h1 {
     font-size: 2em;
     margin-top: 40px;
 }
+
+.table_container {
+    max-width: 1000px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.table_wrapper {
+    max-height: 70vh; /* Ограничиваем высоту таблицы */
+    overflow-y: auto; /* Добавляем прокрутку только для таблицы */
+    margin-top: 20px; /* Отступ между полем поиска и таблицей */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #35424a;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Поле для поиска */
+input[type="text"] {
+    width: 90%;
+    margin-bottom: 15px;
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+}
+
+/* assets/styles/index.css */
+
+/* Стили для ссылки, чтобы она выглядела как текст */
+.vacancy-link {
+    color: inherit; /* Наследовать цвет текста от родителя */
+    text-decoration: none; /* Убрать подчеркивание */
+}
+
+/* Стили при наведении */
+.vacancy-link:hover {
+    text-decoration: underline; /* Подчеркивание при наведении */
+    cursor: pointer; /* Изменение курсора на указатель */
+}

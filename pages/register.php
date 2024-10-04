@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+$conn = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
@@ -13,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($password !== $confirm_password) {
         $error = "Пароли не совпадают!";
     } else {
-        $conn = getDbConnection();
 
         // Проверка, что email уникален
         $stmt = $conn->prepare("SELECT id FROM Users WHERE email = ?");
@@ -45,30 +45,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
     <link rel="stylesheet" href="../assets/styles/register.css">
     <script src="../assets/script.js"></script>
     <title>Регистрация</title>
 </head>
 <body>
+<header>
+    <button class="button_to_main" onclick="window.location.href='index.php'">На главную</button>
+</header>
+<div class="register_container">
 <h1>Регистрация</h1>
 
 <?php if (isset($error)): ?>
     <p style="color:red;"><?php echo $error; ?></p>
 <?php endif; ?>
 
-<form id="registerForm" method="POST">
-    <input type="text" name="name" placeholder="Имя" required>
-    <input type="email" name="email" id="email" placeholder="Уникальная почта" required>
-    <span id="emailError" style="color:red; display:none;">Этот email уже занят!</span>
-    <input type="password" name="password" id="password" placeholder="Пароль" required>
-    <input type="password" name="confirm_password" id="confirm_password" placeholder="Подтвердите пароль" required>
-    <span id="passwordError" style="color:red; display:none;">Пароли не совпадают!</span>
-    <textarea name="text" placeholder="Расскажите о себе" required></textarea>
-    <input type="text" name="vacancy" placeholder="Ваша вакансия" required>
-    <button type="submit">Зарегистрироваться</button>
-</form>
+    <form id="registerForm" method="POST">
+        <input type="text" name="name" placeholder="Имя" required>
+        <input type="email" name="email" id="email" placeholder="Уникальная почта" required>
+        <span id="emailError" style="color:red; display:none;">Этот email уже занят!</span>
+        <input type="password" name="password" id="password" placeholder="Пароль" required>
+        <input type="password" name="confirm_password" id="confirm_password" placeholder="Подтвердите пароль" required>
+        <span id="passwordError" style="color:red; display:none;">Пароли не совпадают!</span>
+        <span id="password8" style="color:red; display:none;">Пароль минимум 8 символов</span>
+        <textarea name="text" placeholder="Расскажите о себе" required></textarea>
+        <input type="text" name="vacancy" placeholder="Ваша вакансия" required>
+        <button type="submit">Зарегистрироваться</button>
+    </form>
 
+</div>
 </body>
 </html>
 

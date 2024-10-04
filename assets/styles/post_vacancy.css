@@ -1,0 +1,55 @@
+/* assets/styles/post_vacancy.css */
+
+.form_container {
+    max-width: 600px;
+    margin: 40px auto; /* Увеличим отступ сверху */
+    padding: 20px;
+    background: #ffffff; /* Белый фон */
+    border-radius: 8px; /* Округление углов */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Тень для эффекта глубины */
+}
+
+.form_container h1 {
+    text-align: center; /* Центрируем заголовок */
+    margin-bottom: 20px; /* Отступ снизу */
+    color: #35424a; /* Цвет заголовка */
+}
+
+.form_container label {
+    display: block; /* Блочный элемент */
+    margin-top: 15px; /* Отступ сверху */
+    font-weight: bold; /* Жирный шрифт для меток */
+    color: #35424a; /* Цвет меток */
+}
+
+.form_container input,
+.form_container textarea {
+    width: 100%; /* Занимаем 100% ширины */
+    padding: 10px; /* Внутренний отступ */
+    margin-top: 5px; /* Отступ сверху */
+    border: 1px solid #ccc; /* Граница */
+    border-radius: 4px; /* Округление углов */
+    font-size: 16px; /* Размер шрифта */
+}
+
+.form_container input:focus,
+.form_container textarea:focus {
+    border-color: #35424a; /* Цвет границы при фокусе */
+    outline: none; /* Убираем обводку */
+}
+
+.form_container button {
+    margin-top: 20px; /* Отступ сверху */
+    background-color: #35424a; /* Цвет кнопки */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем границу */
+    padding: 10px 15px; /* Внутренние отступы */
+    border-radius: 5px; /* Округление углов */
+    cursor: pointer; /* Курсор в виде указателя */
+    font-size: 16px; /* Размер шрифта */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+.form_container button:hover {
+    background-color: #45a049; /* Цвет кнопки при наведении */
+}

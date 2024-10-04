@@ -7,11 +7,20 @@ function getDbConnection() {
 
     try {
         $conn = new mysqli($host, $user, $pass, $dbname);
+
+        // Установка обработки ошибок с помощью исключений
+        mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
         if ($conn->connect_error) {
-            throw new Exception("Ошибка подключения: " . $conn->connect_error);
+            // Перенаправление на страницу ошибки при сбое подключения
+            header("Location: db_error.php");
+            exit();
         }
         return $conn;
-    } catch (Exception $e) {
-        die($e->getMessage());
+    } catch (mysqli_sql_exception $e) {
+        // Если возникает ошибка, перенаправляем на страницу ошибки
+        header("Location: db_error.php");
+        exit();
     }
 }
+?>

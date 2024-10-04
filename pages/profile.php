@@ -40,7 +40,6 @@ if (isset($_POST['delete'])) {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
     <link rel="stylesheet" href="../assets/styles/profile.css">
     <title>Профиль пользователя</title>
 </head>
