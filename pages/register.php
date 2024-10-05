@@ -29,9 +29,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Хэшируем пароль и сохраняем нового пользователя
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                $stmt = $conn->prepare("INSERT INTO Users (name, email, password, text, vacancy) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssss", $name, $email, $hashed_password, $text, $vacancy);
+                $stmt = $conn->prepare("INSERT INTO Users (name, email, password, text, vacancy, image_id) VALUES (?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssi", $name, $email, $hashed_password, $text, $vacancy, 1);
                 $stmt->execute();
+
 
                 // Автоматическая авторизация после регистрации
                 $_SESSION['user_id'] = $stmt->insert_id;
