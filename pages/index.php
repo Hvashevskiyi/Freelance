@@ -47,10 +47,8 @@ $vacancies = $conn->query("SELECT v.id, v.VacancyTag, v.Salary, v.id_company, u.
                     <td><?php echo htmlspecialchars($vacancy['Salary']); ?></td>
                     <td><?php echo htmlspecialchars($vacancy['author_name']); ?></td>
                     <td>
-                        <?php if (isset($_SESSION['user_id']) && $vacancy['id_company'] == $_SESSION['user_id']): ?>
+                        <?php if (isset($_SESSION['user_id'])): ?>
                             <button onclick="deleteVacancy(<?php echo $vacancy['id']; ?>)">Удалить</button>
-                        <?php else: ?>
-                            <!-- Если пользователь не автор, ничего не отображаем -->
                         <?php endif; ?>
                     </td>
                 </tr>

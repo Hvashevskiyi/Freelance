@@ -1,5 +1,5 @@
 function deleteVacancy(vacancyId) {
-    if (confirm("Вы уверены, что хотите удалить эту вакансию?")) {
+    if (confirm('Вы уверены, что хотите удалить эту вакансию?')) {
         fetch('deleteVacancy.php', {
             method: 'POST',
             headers: {
@@ -10,14 +10,15 @@ function deleteVacancy(vacancyId) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Успешное удаление, перезагрузите страницу или удалите строку из таблицы
-                    location.reload(); // Перезагрузить страницу
+                    // Успешное удаление, перезагрузим страницу
+                    window.location.reload();
                 } else {
-                    alert(data.error || 'Произошла ошибка при удалении вакансии.');
+                    alert(data.error || 'Ошибка при удалении вакансии.');
                 }
             })
             .catch(error => {
                 console.error('Ошибка:', error);
+                alert('Произошла ошибка при удалении.');
             });
     }
 }

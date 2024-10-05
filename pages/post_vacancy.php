@@ -9,23 +9,30 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $vacancyTag = isset($_POST['vacancyTag']) ? $_POST['vacancyTag'] : '';
-    $description = isset($_POST['description']) ? $_POST['description'] : '';
+    $vacancyTag = trim(isset($_POST['vacancyTag']) ? $_POST['vacancyTag'] : '');
+    $description = trim(isset($_POST['description']) ? $_POST['description'] : '');
     $salary = isset($_POST['salary']) ? $_POST['salary'] : 0;
 
-    // Подключение к базе данных
-    $conn = getDbConnection();
-    $id_company = $_SESSION['user_id'];
-
-    // Подготовка и выполнение запроса на добавление вакансии
-    $stmt = $conn->prepare("INSERT INTO vacancy (VacancyTag, Description, Salary, id_company) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssdi", $vacancyTag, $description, $salary, $id_company);
-
-    if ($stmt->execute()) {
-        echo "<script> window.location.href='index.php';</script>";
-        exit();
+    // Проверяем, чтобы зарплата была положительным числом
+    if ($salary < 0) {
+        $error = "Зарплата не может быть отрицательной.";
+    } elseif (empty($vacancyTag) || empty($description)) {
+        $error = "Имя вакансии и описание не могут быть пустыми!";
     } else {
-        $error = "Ошибка: " . $stmt->error;
+        // Подключение к базе данных
+        $conn = getDbConnection();
+        $id_company = $_SESSION['user_id'];
+
+        // Подготовка и выполнение запроса на добавление вакансии
+        $stmt = $conn->prepare("INSERT INTO vacancy (VacancyTag, Description, Salary, id_company) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssdi", $vacancyTag, $description, $salary, $id_company);
+
+        if ($stmt->execute()) {
+            echo "<script> window.location.href='index.php';</script>";
+            exit();
+        } else {
+            $error = "Ошибка: " . $stmt->error;
+        }
     }
 }
 ?>
@@ -41,6 +48,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 <header>
+    <button class="button_to_main" onclick="window.location.href='index.php'">На главную</button>
+
     <?php if (isset($_SESSION['user_id'])): ?>
         <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
             <?php echo $_SESSION['username']; ?>
@@ -56,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if (isset($error)): ?>
         <div style="color: red;"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
-    <form method="POST" action="">
+    <form method="POST" action="" onsubmit="return validateForm()">
         <label for="vacancyTag">Имя вакансии:</label>
         <input type="text" name="vacancyTag" id="vacancyTag" required>
 
@@ -64,11 +73,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <textarea name="description" id="description" required></textarea>
 
         <label for="salary">Зарплата:</label>
-        <input type="number" name="salary" id="salary" required>
+        <input type="number" name="salary" id="salary" min="0" required>
 
         <button type="submit">Разместить</button>
     </form>
 </div>
+
+<script>
+    function validateForm() {
+        const salary = document.getElementById('salary').value;
+        if (salary < 0) {
+            alert('Зарплата не может быть отрицательной.');
+            return false; // Остановить отправку формы
+        }
+        return true; // Если все ок, форма отправляется
+    }
+</script>
 
 </body>
 </html>

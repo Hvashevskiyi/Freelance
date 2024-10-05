@@ -1,7 +1,7 @@
 /* assets/styles/post_vacancy.css */
 
 .form_container {
-    max-width: 600px;
+    max-width: 800px;
     margin: 40px auto; /* Увеличим отступ сверху */
     padding: 20px;
     background: #ffffff; /* Белый фон */
@@ -24,12 +24,13 @@
 
 .form_container input,
 .form_container textarea {
-    width: 100%; /* Занимаем 100% ширины */
+    width: 90%; /* Занимаем 100% ширины */
     padding: 10px; /* Внутренний отступ */
     margin-top: 5px; /* Отступ сверху */
     border: 1px solid #ccc; /* Граница */
     border-radius: 4px; /* Округление углов */
     font-size: 16px; /* Размер шрифта */
+    margin: 29px;
 }
 
 .form_container input:focus,

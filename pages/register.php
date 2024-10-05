@@ -4,38 +4,42 @@ require_once '../includes/db.php';
 $conn = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    $text = $_POST['text'];  // Информация о себе
-    $vacancy = $_POST['vacancy'];  // Вакансия
+    $name = trim($_POST['name']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+    $confirm_password = trim($_POST['confirm_password']);
+    $text = trim($_POST['text']);  // Информация о себе
+    $vacancy = trim($_POST['vacancy']);  // Вакансия
 
-    if ($password !== $confirm_password) {
-        $error = "Пароли не совпадают!";
+    // Проверяем, что обязательные поля не пустые после trim
+    if (empty($name) || empty($email) || empty($password) || empty($confirm_password) || empty($text) || empty($vacancy)) {
+        $error = "Все поля должны быть заполнены!";
     } else {
-
-        // Проверка, что email уникален
-        $stmt = $conn->prepare("SELECT id FROM Users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $error = "Пользователь с такой почтой уже существует!";
+        if ($password !== $confirm_password) {
+            $error = "Пароли не совпадают!";
         } else {
-            // Хэшируем пароль и сохраняем нового пользователя
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("INSERT INTO Users (name, email, password, text, vacancy) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $name, $email, $hashed_password, $text, $vacancy);
+            // Проверка, что email уникален
+            $stmt = $conn->prepare("SELECT id FROM Users WHERE email = ?");
+            $stmt->bind_param("s", $email);
             $stmt->execute();
+            $result = $stmt->get_result();
 
-            // Автоматическая авторизация после регистрации
-            $_SESSION['user_id'] = $stmt->insert_id;
-            $_SESSION['username'] = $name;
+            if ($result->num_rows > 0) {
+                $error = "Пользователь с такой почтой уже существует!";
+            } else {
+                // Хэшируем пароль и сохраняем нового пользователя
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $stmt = $conn->prepare("INSERT INTO Users (name, email, password, text, vacancy) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssss", $name, $email, $hashed_password, $text, $vacancy);
+                $stmt->execute();
 
-            header("Location: index.php");
-            exit;
+                // Автоматическая авторизация после регистрации
+                $_SESSION['user_id'] = $stmt->insert_id;
+                $_SESSION['username'] = $name;
+
+                header("Location: index.php");
+                exit;
+            }
         }
     }
 }
@@ -54,11 +58,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <button class="button_to_main" onclick="window.location.href='index.php'">На главную</button>
 </header>
 <div class="register_container">
-<h1>Регистрация</h1>
+    <h1>Регистрация</h1>
 
-<?php if (isset($error)): ?>
-    <p style="color:red;"><?php echo $error; ?></p>
-<?php endif; ?>
+    <?php if (isset($error)): ?>
+        <p style="color:red;"><?php echo $error; ?></p>
+    <?php endif; ?>
 
     <form id="registerForm" method="POST">
         <input type="text" name="name" placeholder="Имя" required>
@@ -76,5 +80,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 </body>
 </html>
-
-
