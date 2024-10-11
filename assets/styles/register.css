@@ -55,3 +55,32 @@ textarea {
 .register-link a:hover {
     text-decoration: underline; /* Подчеркивание при наведении */
 }
+
+/* Стили для выпадающего списка */
+.styled-select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc; /* Светло-серая рамка */
+    border-radius: 5px; /* Закругленные углы */
+    font-size: 16px; /* Размер шрифта */
+    background-color: #f9f9f9; /* Светлый фон */
+    transition: border-color 0.3s; /* Плавный переход цвета рамки */
+}
+
+/* Эффект при наведении */
+.styled-select:hover {
+    border-color: #007BFF; /* Цвет рамки при наведении */
+}
+
+/* Эффект при получении фокуса */
+.styled-select:focus {
+    outline: none; /* Убираем стандартный обвод */
+    border-color: #007BFF; /* Цвет рамки при фокусе */
+    background-color: #fff; /* Белый фон при фокусе */
+}
+
+/* Установка цвета текста для опций */
+.styled-select option {
+    padding: 10px; /* Отступы для опций */
+}

@@ -7,7 +7,17 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
+require_once '../includes/checkUserExists.php';
+$userId = $_SESSION['user_id'];
+$conn = getDbConnection();
+// Проверяем, существует ли пользователь
+if (!checkUserExists($conn, $userId)) {
+    // Удаляем данные сессии
+    session_unset();
+    session_destroy();
+    header("Location: login.php"); // Перенаправляем на страницу входа
+    exit;
+}
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vacancyTag = trim(isset($_POST['vacancyTag']) ? $_POST['vacancyTag'] : '');
     $description = trim(isset($_POST['description']) ? $_POST['description'] : '');

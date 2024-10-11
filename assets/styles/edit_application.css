@@ -1,0 +1,62 @@
+@import url('base.css');
+/* Основной стиль для контейнера редактирования */
+.edit_application_container {
+    max-width: 600px; /* Максимальная ширина контейнера */
+    margin: 20px auto; /* Центрирование по горизонтали */
+    padding: 20px; /* Отступы внутри контейнера */
+    border: 1px solid #ddd; /* Рамка вокруг контейнера */
+    border-radius: 8px; /* Скругление углов */
+    background-color: #fff; /* Цвет фона */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
+}
+
+/* Заголовок редактирования отклика */
+.edit_application_container h1 {
+    font-size: 24px; /* Размер шрифта заголовка */
+    margin-bottom: 15px; /* Отступ снизу */
+    color: #333; /* Цвет текста заголовка */
+}
+
+/* Текстовое поле для сопроводительного письма */
+.edit_application_container textarea {
+    width: 80%; /* Ширина текстового поля на 100% */
+    padding: 10px; /* Внутренние отступы */
+    border: 1px solid #ccc; /* Рамка вокруг текстового поля */
+    border-radius: 5px; /* Скругление углов текстового поля */
+    resize: vertical; /* Разрешаем изменение размера только по вертикали */
+    font-size: 16px; /* Размер шрифта */
+    color: #333; /* Цвет текста */
+}
+
+/* Кнопка для сохранения изменений */
+.edit_application_container input[type="submit"] {
+    background-color: #35424a;
+    color: #fff; /* Цвет текста кнопки */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Скругление углов */
+    padding: 10px 15px; /* Внутренние отступы */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+/* Эффект при наведении на кнопку */
+.edit_application_container input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* Стиль для кнопок в заголовке */
+header button {
+
+    color: #fff; /* Цвет текста кнопок */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Скругление углов */
+    padding: 10px 15px; /* Внутренние отступы */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+/* Эффект при наведении на кнопки в заголовке */
+header button:hover {
+    background-color: #45a049;
+}

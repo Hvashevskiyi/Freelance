@@ -10,7 +10,8 @@ if (!isset($_GET['id'])) {
 $userId = intval($_GET['id']);
 $conn = getDbConnection();
 
-$stmt = $conn->prepare("SELECT id, name, email, text, vacancy FROM Users WHERE id = ?");
+// Получаем данные пользователя
+$stmt = $conn->prepare("SELECT id, name, email, text, vacancy, image_id, role_id FROM Users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -21,19 +22,6 @@ if (!$user) {
     exit;
 }
 
-// Удаление пользователя
-if (isset($_POST['delete'])) {
-    if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== $userId) {
-        $stmt = $conn->prepare("DELETE FROM Users WHERE id = ?");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        header("Location: index.php");
-        exit;
-    } else {
-        // Сообщение об ошибке, если пытаемся удалить себя
-        $deleteError = 'Вы не можете удалить себя!';
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -45,10 +33,15 @@ if (isset($_POST['delete'])) {
 </head>
 <body>
 <header>
+    <?php if ($user['role_id'] == 2): ?> <!-- Проверяем, если пользователь фрилансер -->
+        <button onclick="window.location.href='applications.php'">Мои отклики</button> <!-- Кнопка для перехода на страницу откликов -->
+    <?php endif; ?>
+
     <?php if (isset($_SESSION['user_id'])): ?>
         <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
             <?php echo $_SESSION['username']; ?>
         </button>
+
         <button onclick="window.location.href='logout.php'">Выйти</button>
     <?php else: ?>
         <button onclick="window.location.href='login.php'">Войти</button>
@@ -57,22 +50,24 @@ if (isset($_POST['delete'])) {
 
 <div class="profile-container">
     <h1>Профиль пользователя</h1>
-    <div class="profile-info">
-        <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-        <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-        <p><strong>О себе:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
-        <p><strong>Вакансия:</strong> <?php echo htmlspecialchars($user['vacancy']); ?></p>
+    <div class="profile-wrapper">
+        <div class="profile-image">
+            <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%;">
+        </div>
+        <div class="profile-info">
+            <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
+            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+            <p><strong>О себе:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
+            <?php if ($user['role_id'] == 2): // Если это фрилансер ?>
+                <p><strong>Вакансия:</strong> <?php echo htmlspecialchars($user['vacancy']); ?></p>
+            <?php endif; ?>
+        </div>
     </div>
 
     <div class="button-container">
         <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']): ?>
-
             <button onclick="window.location.href='edit_profile.php?id=<?php echo $user['id']; ?>'">Редактировать</button>
 
-        <?php elseif (isset($_SESSION['user_id'])): ?>
-            <form method="POST">
-                <button type="submit" name="delete">Удалить пользователя</button>
-            </form>
         <?php endif; ?>
         <button onclick="window.location.href='index.php'">Вернуться на главную</button>
     </div>

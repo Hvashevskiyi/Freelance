@@ -9,9 +9,18 @@ if (!isset($_GET['id']) || $_SESSION['user_id'] !== intval($_GET['id'])) {
 }
 
 $userId = intval($_GET['id']);
+require_once '../includes/checkUserExists.php';
 
+// Проверяем, существует ли пользователь
+if (!checkUserExists($conn, $userId)) {
+    // Удаляем данные сессии
+    session_unset();
+    session_destroy();
+    header("Location: login.php"); // Перенаправляем на страницу входа
+    exit;
+}
 // Получаем текущее изображение пользователя
-$stmt = $conn->prepare("SELECT text, vacancy, image_id FROM Users WHERE id = ?");
+$stmt = $conn->prepare("SELECT text, vacancy, image_id, role_id FROM Users WHERE id = ?");
 $stmt->bind_param("i", $userId);
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
@@ -34,7 +43,7 @@ $imagesStmt = $conn->query("SELECT id FROM images");
 // Обработка POST-запроса
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $text = $_POST['text'];
-    $vacancy = $_POST['vacancy'];
+    $vacancy = isset($_POST['vacancy']) ? $_POST['vacancy'] : ''; // Проверяем, существует ли поле вакансии
     $imageId = $_POST['image_id']; // Получаем выбранный id изображения
 
     // Обновление данных пользователя
@@ -50,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <form method="POST">
     <textarea name="text" placeholder="О себе" required><?php echo htmlspecialchars($user['text']); ?></textarea>
-    <input type="text" name="vacancy" placeholder="Вакансия" value="<?php echo htmlspecialchars($user['vacancy']); ?>" required>
+
+    <?php if ($user['role_id'] == 2): // Если это фрилансер ?>
+        <input type="text" name="vacancy" placeholder="Вакансия" value="<?php echo htmlspecialchars($user['vacancy']); ?>" required>
+    <?php endif; ?>
 
     <label for="image_id">Выберите фотографию:</label>
     <select name="image_id" id="image_id">

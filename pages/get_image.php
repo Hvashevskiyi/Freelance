@@ -1,22 +1,21 @@
 <?php
-session_start();
-require_once '../includes/db.php';
+require_once '../includes/db.php'; // Подключение к базе данных
 
-$conn = getDbConnection(); // Подключение к базе данных
+$conn = getDbConnection();
 
 if (isset($_GET['id'])) {
     $id = intval($_GET['id']);
-
-    // Запрос для получения изображения
+    // Выбираем изображение из базы данных
     $stmt = $conn->prepare("SELECT image FROM images WHERE id = ?");
-    $stmt->bind_param("i", $id);
+    $stmt->bind_param('i', $id);
     $stmt->execute();
-    $result = $stmt->get_result();
-    $image = $result->fetch_assoc();
+    $stmt->bind_result($image);
+    $stmt->fetch();
 
     if ($image) {
-        header("Content-Type: image/jpeg"); // Укажите правильный тип содержимого
-        echo $image['image'];
+        // Устанавливаем тип содержимого
+        header("Content-Type: image/jpeg");
+        echo $image; // Отправляем изображение
     } else {
         echo "Изображение не найдено.";
     }

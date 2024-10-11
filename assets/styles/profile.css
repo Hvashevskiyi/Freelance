@@ -1,5 +1,3 @@
-/* assets/styles/profile.css */
-
 @import url('base.css');
 
 body {
@@ -21,8 +19,25 @@ h1 {
     padding: 20px;
 }
 
+/* Новый блок для обертки изображения и текста */
+.profile-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Позволяет элементам переноситься */
+    align-items: center; /* Центрирование изображения по вертикали */
+}
+
+/* Изображение профиля */
+.profile-image img {
+    flex: 1 1 150px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-right: 20px; /* Отступ между изображением и текстом */
+}
+
+/* Текстовые поля профиля */
 .profile-info {
-    margin-bottom: 20px;
+    flex: 1; /* Занимает оставшееся пространство */
 }
 
 .profile-info p {
