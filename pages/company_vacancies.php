@@ -7,9 +7,20 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
 
+$role = $_SESSION['role_id'];
+
+// Проверяем, существует ли пользователь
+if (!checkUserExists($conn, $userId) || $role != 3) {
+    // Удаляем данные сессии
+    session_unset();
+    session_destroy();
+    header("Location: login.php"); // Перенаправляем на страницу входа
+    exit;
+}
 // Проверяем, что это компания
 $stmt = $conn->prepare("SELECT role_id FROM Users WHERE id = ?");
 $stmt->bind_param("i", $userId);
@@ -79,7 +90,7 @@ $vacancies = $stmt->get_result();
                 <td><?php echo htmlspecialchars($vacancy['VacancyTag']); ?></td>
                 <td>
                     <a href="company_edit_vacancy.php?id=<?php echo $vacancy['id']; ?>">Редактировать</a>
-                    <a href="company_delete_vacancy.php?id=<?php echo $vacancy['id']; ?>" onclick="return confirm('Вы уверены, что хотите удалить эту вакансию?');">Удалить</a>
+                    <a href="company_delete_vacancy.php?id=<?php echo $vacancy['id']; ?>">Удалить</a>
                 </td>
             </tr>
         <?php endwhile; ?>

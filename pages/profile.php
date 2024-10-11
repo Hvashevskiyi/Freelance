@@ -49,16 +49,27 @@ if (!$user) {
 </header>
 
 <div class="profile-container">
-    <h1>Профиль пользователя</h1>
+    <?php if ($user['role_id'] == 3): ?>
+        <h1>Профиль компании</h1>
+    <?php else:?>
+        <h1>Профиль пользователя</h1>
+    <?php endif; ?>
+
     <div class="profile-wrapper">
         <div class="profile-image">
             <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%;">
         </div>
         <div class="profile-info">
-            <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
-            <p><strong>О себе:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
-            <?php if ($user['role_id'] == 2): // Если это фрилансер ?>
+
+            <?php if ($user['role_id'] == 3): // Если это rjvgfybz ?>
+                <p><strong>Название:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                <p><strong>О нас:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
+
+            <?php else: ?>
+                <p><strong>Имя:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
+                <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
+                <p><strong>О себе:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
                 <p><strong>Вакансия:</strong> <?php echo htmlspecialchars($user['vacancy']); ?></p>
             <?php endif; ?>
         </div>

@@ -18,7 +18,11 @@ $conn = getDbConnection();
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 // Проверяем, существует ли пользователь
-if (!checkUserExists($conn, $userId)) {
+
+$role = $_SESSION['role_id'];
+
+// Проверяем, существует ли пользователь
+if (!checkUserExists($conn, $userId) || $role != 3) {
     // Удаляем данные сессии
     session_unset();
     session_destroy();

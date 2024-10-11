@@ -10,8 +10,11 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
+
+$role = $_SESSION['role_id'];
+
 // Проверяем, существует ли пользователь
-if (!checkUserExists($conn, $userId)) {
+if (!checkUserExists($conn, $userId) || $role != 3) {
     // Удаляем данные сессии
     session_unset();
     session_destroy();
@@ -70,7 +73,7 @@ $vacancy = $result->fetch_assoc();
 
     <form method="post" action="">
         <input type="submit" value="Подтвердить удаление">
-        <button type="button" onclick="window.location.href='admin_vacancies.php'">Отмена</button>
+        <button type="button" onclick="window.location.href='company_vacancies.php'">Отмена</button>
     </form>
 </div>
 </body>

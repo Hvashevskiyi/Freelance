@@ -1,7 +1,22 @@
 <?php
+session_start();
 require_once '../includes/db.php';
 
+require_once '../includes/checkUserExists.php';
+
+$userId = $_SESSION['user_id'];
 $conn = getDbConnection();
+// Проверяем, существует ли пользователь
+$role = $_SESSION['role_id'];
+
+// Проверяем, существует ли пользователь
+if (!checkUserExists($conn, $userId) || $role != 1) {
+    // Удаляем данные сессии
+    session_unset();
+    session_destroy();
+    header("Location: login.php"); // Перенаправляем на страницу входа
+    exit;
+}
 
 // Пример получения статистики
 $usersCountStmt = $conn->prepare("SELECT COUNT(*) as count FROM Users");
