@@ -22,6 +22,32 @@ if (!$user) {
     exit;
 }
 
+// Инициализируем переменные для статистики фрилансера
+$completedCount = 0;
+$inProgressCount = 0;
+$notCompletedCount = 0;
+
+if ($user['role_id'] == 2) { // Проверяем, если пользователь - фрилансер
+    // Получаем статистику по заявкам фрилансера
+    $stmt = $conn->prepare("
+        SELECT 
+            SUM(CASE WHEN s.completed = 1 THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN s.completed IS NULL OR s.completed = '' THEN 1 ELSE 0 END) AS in_progress,
+            SUM(CASE WHEN s.completed = 0 THEN 1 ELSE 0 END) AS not_completed
+        FROM applications a
+        LEFT JOIN application_status s ON a.id = s.application_id
+        WHERE a.freelancer_id = ? AND s.status = 'Принято'
+    ");
+    $stmt->bind_param("i", $userId);
+    $stmt->execute();
+    $statusCounts = $stmt->get_result()->fetch_assoc();
+
+    // Устанавливаем значения для счетчиков
+    $completedCount = $statusCounts['completed'] ?? 0;
+    $inProgressCount = $statusCounts['in_progress'] ?? 0;
+    $notCompletedCount = $statusCounts['not_completed'] ?? 0;
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +77,7 @@ if (!$user) {
 <div class="profile-container">
     <?php if ($user['role_id'] == 3): ?>
         <h1>Профиль компании</h1>
-    <?php else:?>
+    <?php else: ?>
         <h1>Профиль пользователя</h1>
     <?php endif; ?>
 
@@ -60,8 +86,7 @@ if (!$user) {
             <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%;">
         </div>
         <div class="profile-info">
-
-            <?php if ($user['role_id'] == 3): // Если это rjvgfybz ?>
+            <?php if ($user['role_id'] == 3): // Если это компания ?>
                 <p><strong>Название:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
                 <p><strong>О нас:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
@@ -71,6 +96,12 @@ if (!$user) {
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
                 <p><strong>О себе:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
                 <p><strong>Вакансия:</strong> <?php echo htmlspecialchars($user['vacancy']); ?></p>
+
+                <!-- Выводим статистику фрилансера -->
+                <h2>Статистика работ</h2>
+                <p><strong>Выполнено:</strong> <?php echo $completedCount; ?></p>
+                <p><strong>В процессе:</strong> <?php echo $inProgressCount; ?></p>
+                <p><strong>Не выполнено:</strong> <?php echo $notCompletedCount; ?></p>
             <?php endif; ?>
         </div>
     </div>
@@ -78,7 +109,6 @@ if (!$user) {
     <div class="button-container">
         <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']): ?>
             <button onclick="window.location.href='edit_profile.php?id=<?php echo $user['id']; ?>'">Редактировать</button>
-
         <?php endif; ?>
         <button onclick="window.location.href='index.php'">Вернуться на главную</button>
     </div>

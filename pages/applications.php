@@ -75,6 +75,8 @@ $applications = $stmt->get_result();
                 <td><?php echo htmlspecialchars($application['cover_letter']); ?></td>
                 <td>
                     <a href="edit_application.php?id=<?php echo $application['id']; ?>">Редактировать</a>
+                    <a href="delete_application.php?id=<?php echo $application['id']; ?>">Удалить</a>
+
                 </td>
             </tr>
         <?php endwhile; ?>

@@ -9,22 +9,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
     $confirm_password = trim($_POST['confirm_password']);
     $text = trim($_POST['text']);  // Информация о себе
-    $vacancy = trim($_POST['vacancy']);  // Вакансия
     $role = intval($_POST['role']); // Получаем выбранную роль
+
+    // Проверяем, является ли вакансия обязательной для роли "фрилансер"
+    if ($role === 2) {
+        $vacancy = trim($_POST['vacancy']);  // Вакансия должна быть заполнена для фрилансера
+    } else {
+        $vacancy = '';  // Очищаем поле вакансии для компании
+    }
 
     // Проверяем, что обязательные поля не пустые после trim
     if (empty($name) || empty($email) || empty($password) || empty($confirm_password) || empty($text)) {
         $error = "Все поля должны быть заполнены!";
     } else {
-        // Убираем проверку на вакансии, если выбрана компания
-        if ($role === 3 && !empty($vacancy)) {
-            $vacancy = ''; // Очищаем поле
-        }
-
+        // Проверяем совпадение паролей
         if ($password !== $confirm_password) {
             $error = "Пароли не совпадают!";
         } else {
-            // Проверка, что email уникален
+            // Проверка уникальности email
             $stmt = $conn->prepare("SELECT id FROM Users WHERE email = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -35,10 +37,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Хэшируем пароль и сохраняем нового пользователя
                 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                // Обновленный запрос для вставки пользователя
+                // Сохраняем нового пользователя в базу данных
                 $stmt = $conn->prepare("INSERT INTO Users (name, email, password, text, vacancy, role_id, image_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $image_id = 1; // Значение по умолчанию для image_id
-                $stmt->bind_param("ssssiii", $name, $email, $hashed_password, $text, $vacancy, $role, $image_id);
+                $stmt->bind_param("sssssii", $name, $email, $hashed_password, $text, $vacancy, $role, $image_id);
                 $stmt->execute();
 
                 // Автоматическая авторизация после регистрации
@@ -58,7 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../assets/styles/register.css">
-    <script src="../assets/script.js"></script>
     <title>Регистрация</title>
     <style>
         /* Стиль для выпадающего списка ролей */
@@ -75,16 +76,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             const roleSelect = document.getElementById('role');
             const vacancyInput = document.getElementById('vacancyInput');
 
-            // Если выбрана компания, скрываем поле вакансии и отключаем required
+            // Если выбрана компания (роль = 3), скрываем поле вакансии
             if (roleSelect.value == 3) {
                 vacancyInput.style.display = 'none';
-                vacancyInput.value = ''; // Очищаем поле
-                vacancyInput.removeAttribute('required'); // Убираем обязательное заполнение
+                vacancyInput.removeAttribute('required'); // Убираем обязательное заполнение для компании
+                vacancyInput.value = ''; // Очищаем поле, чтобы оно не отправлялось
             } else {
                 vacancyInput.style.display = 'block';
-                vacancyInput.setAttribute('required', 'required'); // Устанавливаем обязательное заполнение
+                vacancyInput.setAttribute('required', 'required'); // Поле обязательно для фрилансеров
             }
         }
+
+        // При загрузке страницы вызываем проверку для корректной видимости полей
+        window.onload = toggleVacancyField;
     </script>
 </head>
 <body>

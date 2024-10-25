@@ -85,3 +85,83 @@
     border-radius: 5px; /* Скругление углов */
     font-size: 16px; /* Размер шрифта */
 }
+/* Модальное окно */
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Оверлей на весь экран */
+    z-index: 1000; /* На переднем плане */
+    left: 0;
+    top: 0;
+    width: 100%; /* Полная ширина */
+    height: 100%; /* Полная высота */
+    overflow: auto; /* Прокрутка при необходимости */
+    background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный черный фон */
+}
+
+/* Содержимое модального окна */
+.modal-content {
+    background-color: #fff; /* Белый фон для окна */
+    margin: 15% auto; /* Отступ сверху и по центру */
+    padding: 20px; /* Внутренние отступы */
+    border: 1px solid #888; /* Параметры границы */
+    width: 80%; /* Ширина окна */
+    max-width: 500px; /* Максимальная ширина */
+    border-radius: 8px; /* Закругленные углы */
+}
+
+/* Закрывающая кнопка */
+.close {
+    color: #aaa; /* Цвет для крестика */
+    float: right; /* Правое выравнивание */
+    font-size: 28px; /* Размер шрифта */
+    font-weight: bold; /* Жирный шрифт */
+}
+
+.close:hover,
+.close:focus {
+    color: black; /* Цвет при наведении */
+    text-decoration: none; /* Убираем подчеркивание */
+    cursor: pointer; /* Курсор в виде руки */
+}
+
+/* Заголовок модального окна */
+.modal-header {
+    display: flex; /* Используем flexbox для размещения элементов */
+    justify-content: space-between; /* Пробел между заголовком и закрывающей кнопкой */
+    align-items: center; /* Центрирование по вертикали */
+}
+
+/* Текст и кнопки внутри модального окна */
+.modal-body {
+    margin-top: 10px; /* Отступ сверху */
+}
+
+.modal-body input[type="number"],
+.modal-body select {
+    width: 100%; /* Полная ширина для полей ввода */
+    padding: 10px; /* Внутренние отступы */
+    margin: 5px 0; /* Отступы сверху и снизу */
+    border: 1px solid #ccc; /* Параметры границы */
+    border-radius: 4px; /* Закругленные углы */
+}
+
+.modal-footer {
+    display: flex; /* Используем flexbox для размещения кнопок */
+    justify-content: flex-end; /* Выравнивание кнопок по правому краю */
+    margin-top: 20px; /* Отступ сверху */
+}
+
+.modal-footer button {
+    background-color: #4CAF50; /* Зеленый фон для кнопок */
+    color: white; /* Белый цвет текста */
+    padding: 10px 20px; /* Внутренние отступы */
+    border: none; /* Без границ */
+    border-radius: 5px; /* Закругленные углы */
+    cursor: pointer; /* Курсор в виде руки */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+.modal-footer button:hover {
+    background-color: #45a049; /* Темно-зеленый при наведении */
+}
+

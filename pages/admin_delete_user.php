@@ -68,6 +68,9 @@ $user = $result->fetch_assoc();
     <button onclick="window.location.href='admin_users.php'">Управление пользователями</button>
     <button onclick="window.location.href='admin_vacancies.php'">Управление вакансиями</button>
     <button onclick="window.location.href='admin_stats.php'">Статистика</button>
+    <button onclick="window.location.href='admin_applications.php'">История откликов</button>
+    <button onclick="window.location.href='admin_weights.php'">Рейтинг</button>
+
     <button onclick="window.location.href='index.php'">На главную</button>
 </header>
 
