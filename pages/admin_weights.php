@@ -27,6 +27,7 @@ if (!checkUserExists($conn, $userId) || $role != 1) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $w_completed = floatval($_POST['w_completed']);
     $w_not_completed = floatval($_POST['w_not_completed']);
+    $w_avg = floatval($_POST['w_avg']);
 
     $stmt = $conn->prepare("UPDATE weights SET value = ? WHERE name = 'completed_weight'");
     $stmt->bind_param("d", $w_completed);
@@ -34,6 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt = $conn->prepare("UPDATE weights SET value = ? WHERE name = 'not_completed_weight'");
     $stmt->bind_param("d", $w_not_completed);
+    $stmt->execute();
+    $stmt = $conn->prepare("UPDATE weights SET value = ? WHERE name = 'avg_weight'");
+    $stmt->bind_param("d", $w_avg);
     $stmt->execute();
 
     echo "<script>alert('Весовые коэффициенты обновлены');</script>";
@@ -68,11 +72,12 @@ while ($row = $weights->fetch_assoc()) {
     <h1>Настройка весов для расчета рейтинга</h1>
     <form method="post" action="admin_weights.php">
         <label>Вес за выполненные заказы:</label>
-        <input type="number" step="0.1" name="w_completed" value="<?php echo htmlspecialchars($weightsData['completed_weight'] ?? 2); ?>"><br>
+        <input type="number" step="0.1" name="w_completed" value="<?php echo htmlspecialchars($weightsData['completed_weight'] ?? 0.5); ?>"><br>
 
         <label>Вес за не выполненные заказы:</label>
-        <input type="number" step="0.1" name="w_not_completed" value="<?php echo htmlspecialchars($weightsData['not_completed_weight'] ?? -1); ?>"><br>
-
+        <input type="number" step="0.1" name="w_not_completed" value="<?php echo htmlspecialchars($weightsData['not_completed_weight'] ?? 0.1); ?>"><br>
+        <label>Вес за среднее значение оценки:</label>
+        <input type="number" step="0.1" name="w_avg" value="<?php echo htmlspecialchars($weightsData['avg_weight'] ?? 1.4); ?>"><br>
         <button type="submit">Сохранить весовые коэффициенты</button>
     </form>
 

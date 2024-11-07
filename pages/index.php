@@ -115,7 +115,7 @@ if (isset($_SESSION['user_id'])) {
                 <?php while ($freelancer = $freelancers->fetch_assoc()): ?>
                     <tr>
                         <td>
-                            <img src="get_image.php?id=<?php echo $freelancer['image_id']; ?>" alt="User Image" style="width:50px; height:50px; border-radius:50%;">
+                            <img src="get_image.php?id=<?php echo $freelancer['image_id']; ?>" alt="User Image" style="width:50px; height:50px; border-radius:50%;object-fit: cover;">
                         </td>
                         <td>
                             <a href="profile.php?id=<?php echo $freelancer['id']; ?>" class="freelancer-link">
@@ -166,7 +166,7 @@ if (isset($_SESSION['user_id'])) {
                             </a>
                         </td>
                         <td>
-                            <img src="get_image.php?id=<?php echo $vacancy['image_id']; ?>" alt="User Image" style="width:50px; height:50px; border-radius:50%;">
+                            <img src="get_image.php?id=<?php echo $vacancy['image_id']; ?>" alt="User Image" style="width:50px; height:50px; border-radius:50%; object-fit: cover;">
                         </td>
                         <td><?php echo htmlspecialchars($vacancy['Salary']); ?></td>
                     </tr>

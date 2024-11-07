@@ -2,7 +2,6 @@
 session_start();
 require_once '../includes/db.php';
 
-
 $applicationId = intval($_GET['id']);
 $conn = getDbConnection();
 require_once '../includes/checkUserExists.php';
@@ -61,10 +60,16 @@ $application = $result->fetch_assoc();
     </div>
 
     <?php if (!empty($application['file_path'])): ?>
-        <div class="file_attachment">
-            <p><strong>Прикрепленный файл:</strong></p>
-            <a href="<?php echo htmlspecialchars($application['file_path']); ?>" download>Скачать файл</a>
-        </div>
+        <?php if (file_exists($application['file_path'])): ?>
+            <div class="file_attachment">
+                <p><strong>Прикрепленный файл:</strong></p>
+                <a href="<?php echo htmlspecialchars($application['file_path']); ?>" download>Скачать файл</a>
+            </div>
+        <?php else: ?>
+            <div class="file_attachment">
+                <p><strong>Прикрепленный файл недоступен.</strong></p>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </div>
 

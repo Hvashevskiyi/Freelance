@@ -83,7 +83,7 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
 
     <div class="profile-wrapper">
         <div class="profile-image">
-            <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%;">
+            <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%; object-fit: cover; ">
         </div>
         <div class="profile-info">
             <?php if ($user['role_id'] == 3): // Если это компания ?>

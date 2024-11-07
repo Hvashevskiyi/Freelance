@@ -114,6 +114,16 @@ $applications = $stmt->get_result();
         }
 
         function submitRating() {
+            const ratingInput = document.getElementById('rating');
+            const ratingValue = parseFloat(ratingInput.value);
+
+            // Проверяем, что значение рейтинга находится в пределах от 0 до 5
+            if (isNaN(ratingValue) || ratingValue < 0 || ratingValue > 5) {
+                alert("Пожалуйста, введите значение оценки в пределах от 0 до 5.");
+                return false; // Останавливаем отправку формы
+            }
+
+            // Если значение корректное, отправляем форму
             document.getElementById('ratingForm').submit(); // Отправляем форму
         }
 

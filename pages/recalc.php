@@ -12,8 +12,9 @@ while ($row = $weights->fetch_assoc()) {
 }
 
 // Устанавливаем значения весов с учетом значений по умолчанию
-$w_completed = $weightsData['completed_weight'] ?? 2;
-$w_not_completed = $weightsData['not_completed_weight'] ?? -1;
+$w_completed = $weightsData['completed_weight'];
+$w_not_completed = $weightsData['not_completed_weight'];
+$w_avg = $weightsData['avg_weight'];
 
 
 // Получаем всех фрилансеров
@@ -44,10 +45,13 @@ while ($freelancer = $freelancers->fetch_assoc()) {
 
     // Рассчитываем новый рейтинг
     if ($completedCount + $notCompletedCount > 0) {
-        $numerator = ($averageRating * $w_completed * $completedCount) + ($w_not_completed * $notCompletedCount);
-        $denominator = ($w_completed * $completedCount) + $notCompletedCount;
 
-        $newRating = $numerator / $denominator;
+        $denominator = $w_not_completed*$w_completed+$w_avg+$w_completed+$w_not_completed;
+        $norm_s = $averageRating/5;
+        $c_ratio = $completedCount/($completedCount+$notCompletedCount);
+        $n_c_ratio= $notCompletedCount/($completedCount+$notCompletedCount);
+        $numerator = $norm_s*$w_avg+$c_ratio*$w_completed-$n_c_ratio*$w_not_completed;
+        $newRating = 5*$numerator / $denominator;
         $newRating = max(0, min(5, round($newRating, 2)));
     } else {
         $newRating = 0;
