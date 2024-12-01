@@ -1,15 +1,19 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once 'freelance_crypt.php';
+require_once 'company_crypt.php';
 
 if (!isset($_GET['id'])) {
     header("Location: index.php");
     exit;
 }
 
-$userId = intval($_GET['id']);
 $conn = getDbConnection();
 
+
+$userId = intval($_GET['id']);
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 // Получаем данные пользователя
 $stmt = $conn->prepare("SELECT id, name, email, text, vacancy, image_id, role_id FROM Users WHERE id = ?");
 $stmt->bind_param("i", $userId);
@@ -26,8 +30,23 @@ if (!$user) {
 $completedCount = 0;
 $inProgressCount = 0;
 $notCompletedCount = 0;
+if (isset($_SESSION['user_id'])) {
+    $sessionId = $_SESSION['user_id'];
+    $stmt = $conn->prepare("SELECT role_id FROM Users WHERE id = ?");
+    $stmt->bind_param("i", $sessionId);
+    $stmt->execute();
+    $SessionUserRole = $stmt->get_result()->fetch_assoc()['role_id'];
+    if ($SessionUserRole === 3 && $user['role_id'] == 2){
+        updateUserHistory($sessionId, $user['name'], $userId);
+        displayUserHistory($sessionId);
+    }
+    if ($SessionUserRole == 2){
+        displayHistory($SessionUserRole);
+    }
+}
 
 if ($user['role_id'] == 2) { // Проверяем, если пользователь - фрилансер
+
     // Получаем статистику по заявкам фрилансера
     $stmt = $conn->prepare("
         SELECT 
@@ -48,22 +67,68 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
     $notCompletedCount = $statusCounts['not_completed'] ?? 0;
 }
 
+
 ?>
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/profile.css">
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/profile/profile_<?php echo $theme; ?>.css">
     <title>Профиль пользователя</title>
+    <script>
+        // Функция для смены темы и сохранения выбора в куки
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/profile/profile_${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+    </script>
+    <script>
+        // Функция для проверки актуальности изображения
+        function checkImageUpdate() {
+            const imageUrl = "get_image.php?id=<?php echo $user['image_id']; ?>"; // URL изображения
+            const lastUpdated = getCookie("image_updated_at"); // Получаем время из куки
+
+            // Если время в куке существует, проверяем его с актуальной датой
+            if (lastUpdated) {
+                const imageElement = document.getElementById("profile-image"); // Элемент изображения профиля
+                imageElement.src = `${imageUrl}&cacheBust=${Date.now()}`; // Добавляем временную метку, чтобы избежать использования кэша
+            }
+        }
+
+        // Вспомогательная функция для получения значения куки по имени
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // Проверка актуальности изображения при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            checkImageUpdate(); // Проверка актуальности изображения при загрузке страницы
+        });
+    </script>
+
 </head>
 <body>
 <header>
-    <?php if ($user['role_id'] == 2): ?> <!-- Проверяем, если пользователь фрилансер -->
-        <button onclick="window.location.href='applications.php'">Мои отклики</button> <!-- Кнопка для перехода на страницу откликов -->
-    <?php endif; ?>
+    <button onclick="toggleTheme()">Сменить тему</button>
+
 
     <?php if (isset($_SESSION['user_id'])): ?>
+        <?php if ($SessionUserRole == 2): ?> <!-- Проверяем, если пользователь фрилансер -->
+            <button onclick="window.location.href='applications.php'">Мои отклики</button> <!-- Кнопка для перехода на страницу откликов -->
+        <?php endif; ?>
         <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
             <?php echo $_SESSION['username']; ?>
         </button>
@@ -83,7 +148,9 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
 
     <div class="profile-wrapper">
         <div class="profile-image">
-            <img src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%; object-fit: cover; ">
+
+            <img id="profile-image" src="get_image.php?id=<?php echo $user['image_id']; ?>" alt="Фото профиля" style="width:150px; height:150px; border-radius:50%; object-fit: cover;">
+
         </div>
         <div class="profile-info">
             <?php if ($user['role_id'] == 3): // Если это компания ?>
@@ -110,9 +177,8 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
         <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']): ?>
             <button onclick="window.location.href='edit_profile.php?id=<?php echo $user['id']; ?>'">Редактировать</button>
         <?php endif; ?>
-        <button onclick="window.location.href='index.php'">Вернуться на главную</button>
+        <button onclick="window.location.href='index.php';">Назад</button>
     </div>
 </div>
-
 </body>
 </html>

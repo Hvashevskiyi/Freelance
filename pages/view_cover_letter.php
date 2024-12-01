@@ -4,6 +4,8 @@ require_once '../includes/db.php';
 
 $applicationId = intval($_GET['id']);
 $conn = getDbConnection();
+
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $role = $_SESSION['role_id'];
@@ -33,18 +35,75 @@ if ($result->num_rows === 0) {
 }
 
 $application = $result->fetch_assoc();
+
+// Функция для проверки доступности и целостности файла
+function checkFileStatus($filePath) {
+    if (!file_exists($filePath)) {
+        return 'missing'; // Файл отсутствует
+    }
+
+    if (!is_readable($filePath)) {
+        return 'unreadable'; // Файл недоступен для чтения
+    }
+
+    $fileHandle = @fopen($filePath, "r");
+    if ($fileHandle === false) {
+        return 'unreadable'; // Файл заблокирован для открытия
+    }
+    fclose($fileHandle);
+
+    $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+    // Проверка для PDF файлов
+    if ($fileExtension === 'pdf') {
+        $fileData = file_get_contents($filePath, false, null, 0, 4);
+        return $fileData !== "%PDF" ? 'corrupted' : 'valid';
+    }
+
+    // Проверка для TXT файлов
+    if ($fileExtension === 'txt') {
+        $fileData = file_get_contents($filePath);
+        return empty($fileData) ? 'corrupted' : 'valid';
+    }
+
+    // Проверка для DOC и DOCX файлов
+    if (in_array($fileExtension, ['doc', 'docx'])) {
+        $fileData = file_get_contents($filePath, false, null, 0, 5);
+        return substr($fileData, 0, 5) !== "\xD0\xCF\x11\xE0\xA1" ? 'corrupted' : 'valid';
+    }
+
+    return 'valid'; // Для других форматов файлов
+}
+
+
+// Проверяем файл
+$fileStatus = checkFileStatus($application['file_path']);
 ?>
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/view_cover_letter.css">
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/view_cover_letter/vcl_<?php echo $theme; ?>.css">
     <title>Сопроводительное письмо</title>
+    <script>
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`;
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/view_cover_letter/vcl_${currentTheme}.css`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+    </script>
 </head>
 <body>
 <header>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='index.php'">На главную</button>
     <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
         <?php echo htmlspecialchars($_SESSION['username']); ?>
@@ -60,16 +119,18 @@ $application = $result->fetch_assoc();
     </div>
 
     <?php if (!empty($application['file_path'])): ?>
-        <?php if (file_exists($application['file_path'])): ?>
-            <div class="file_attachment">
+        <div class="file_attachment">
+            <?php if ($fileStatus === 'missing'): ?>
+                <p><strong>Ошибка:</strong> Файл отсутствует на сервере.</p>
+            <?php elseif ($fileStatus === 'unreadable'): ?>
+                <p><strong>Ошибка:</strong> Файл недоступен для чтения.</p>
+            <?php elseif ($fileStatus === 'corrupted'): ?>
+                <p><strong>Ошибка:</strong> Файл поврежден.</p>
+            <?php else: ?>
                 <p><strong>Прикрепленный файл:</strong></p>
                 <a href="<?php echo htmlspecialchars($application['file_path']); ?>" download>Скачать файл</a>
-            </div>
-        <?php else: ?>
-            <div class="file_attachment">
-                <p><strong>Прикрепленный файл недоступен.</strong></p>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
+        </div>
     <?php endif; ?>
 </div>
 

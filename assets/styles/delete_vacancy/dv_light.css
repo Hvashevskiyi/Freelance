@@ -1,0 +1,55 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 12px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    color: #0a0908;
+}
+p {
+    color:#0a0908;
+}
+
+
+
+input[type="submit"] {
+    background-color: #5cb85c;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+button{
+    background-color: #35424a;
+    color: white;
+    border: none;
+
+    font-weight: bold;
+    padding: 10px 15px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: darkred;
+    transform: scale(1);
+}

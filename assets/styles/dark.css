@@ -1,0 +1,112 @@
+/* light.css */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #0a0908 ;
+}
+
+header {
+    background: #5e503f;
+    min-height: 32px;
+    padding: 10px 20px;
+    text-align: right;
+}
+header button {
+    background: #5e503f;
+    color: #eae0d5;
+    font-weight: bold;
+    min-height: 32px;
+    padding: 10px 20px;
+    text-align: right;
+
+}
+header button:hover {
+    background-color: #c6ac8f;
+    color: #31302e;
+    transform: scale(1.05);
+}
+
+header a {
+    color: #00909e;
+    text-decoration: none;
+    margin: 0 10px;
+}
+a {
+    color: #eae0d5;
+    text-decoration: none;
+    margin: 0 10px;
+}
+label,p,h2{
+    color: #eae0d5;
+}
+h1 {
+    color: #eae0d5;
+    text-align: center;
+    margin-top: 20px;
+}
+
+table {
+    width: 90%;
+    margin: 12px auto;
+    border-collapse: collapse;
+    border: 2px solid #5e503f; /* Граница вокруг всей таблицы */
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    color: #eae0d5;
+    border-bottom: 1px solid #5e503f; /* Добавляем нижнюю границу для строк */
+}
+
+th {
+    background-color: #5e503f;
+    color: #eae0d5;
+}
+
+
+input[type="number"],
+input[type="text"],
+input[type="email"],
+input[type="password"], textarea {
+    width: 80%;
+    padding: 10px;
+    margin: 10px auto;
+    display: block;
+    border: 1px solid #5e503f;
+    border-radius: 4px;
+    color: #eae0d5;
+
+    background: #31302e;
+}
+input::placeholder {
+    color: #eae0d5; /* Задайте любой цвет */
+
+}
+
+button{
+    background-color: #35424a;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* Добавим стиль для кнопок в форме */
+form button {
+    margin-top: 10px;
+}
+
+

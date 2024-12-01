@@ -1,8 +1,10 @@
 <?php
+
 session_start();
 require_once '../includes/db.php';
 
 $conn = getDbConnection();
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 require_once '../includes/checkUserExists.php';
 
 $userId = $_SESSION['user_id'];
@@ -16,20 +18,48 @@ if (!checkUserExists($conn, $userId) || $role != 1) {
     exit;
 }
 
-// Получаем информацию обо всех откликах
+$startTime = microtime(true);
+$startMemory = memory_get_usage();
+
+//$stmt = $conn->prepare("
+//    SELECT a.id AS application_id,
+//           a.created_at,
+//           a.vacancy_id,
+//           a.rating,
+//           (SELECT VacancyTag FROM vacancy WHERE vacancy.id = a.vacancy_id) AS VacancyTag,
+//           (SELECT u.id FROM Users u WHERE u.id = a.freelancer_id) AS freelancer_id,
+//           (SELECT u.name FROM Users u WHERE u.id = a.freelancer_id) AS freelancer_name,
+//           (SELECT  u.average_rating  FROM Users u WHERE u.id = a.freelancer_id) AS freelancer_rating,
+//           (SELECT u.num_w_s  FROM Users u WHERE u.id = a.freelancer_id) AS Ws,
+//           (SELECT u.num_w_c  FROM Users u WHERE u.id = a.freelancer_id) AS Wc,
+//           (SELECT u.num_w_u  FROM Users u WHERE u.id = a.freelancer_id) AS Wu,
+//           (SELECT u.denom  FROM Users u WHERE u.id = a.freelancer_id) AS denominator,
+//           (SELECT s.status FROM application_status s WHERE s.application_id = a.id) AS status,
+//           (SELECT s.viewed FROM application_status s WHERE s.application_id = a.id) AS viewed,
+//           (SELECT s.completed FROM application_status s WHERE s.application_id = a.id) AS completed,
+//           a.cover_letter,
+//           a.file_path
+//    FROM applications a
+//");
+
+
 $stmt = $conn->prepare("
-    SELECT a.id AS application_id, 
-           a.created_at, 
-           a.vacancy_id, 
+    SELECT a.id AS application_id,
+           a.created_at,
+           a.vacancy_id,
            a.rating,
-           v.VacancyTag, 
-           u.id AS freelancer_id, 
-           u.name AS freelancer_name, 
-           u.average_rating AS freelancer_rating, 
-           s.status, 
-           s.viewed, 
-           s.completed, 
-           a.cover_letter, 
+           v.VacancyTag,
+           u.id AS freelancer_id,
+           u.name AS freelancer_name,
+           u.average_rating AS freelancer_rating,
+           u.num_w_s AS Ws,
+           u.num_w_c AS Wc,
+           u.num_w_u AS Wu,
+           u.denom AS denominator,
+           s.status,
+           s.viewed,
+           s.completed,
+           a.cover_letter,
            a.file_path
     FROM applications a
     JOIN vacancy v ON a.vacancy_id = v.id
@@ -38,16 +68,41 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute();
 $applications = $stmt->get_result();
+
+// End measuring time
+$endTime = microtime(true);
+$endMemory = memory_get_usage();
+
+// Calculate the time difference
+$executionTime = $endTime - $startTime;
+$memoryUsage = $endMemory - $startMemory;
+// Pass the execution time to JavaScript
+echo "<script>console.log('Query executed in " . $executionTime . " seconds');</script>";
+echo "<script>console.log('Memory usage: " . $memoryUsage . " bytes');</script>";
+
 ?>
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/admin_applications.css">
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
     <title>Управление откликами</title>
     <script>
+
+        // Функция для смены темы и сохранения выбора в куки
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+
         function filterApplications() {
             const input = document.getElementById('searchInput');
             const filter = input.value.trim().toLowerCase();
@@ -81,10 +136,13 @@ $applications = $stmt->get_result();
 </head>
 <body>
 <header>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='admin_users.php'">Управление пользователями</button>
     <button onclick="window.location.href='admin_vacancies.php'">Управление вакансиями</button>
     <button onclick="window.location.href='admin_stats.php'">Статистика</button>
     <button onclick="window.location.href='admin_weights.php'">Рейтинг</button>
+    <button onclick="window.location.href='admin_freelance.php'">Фрилансеры</button>
+
     <button onclick="window.location.href='index.php'">На главную</button>
 </header>
 
@@ -101,7 +159,12 @@ $applications = $stmt->get_result();
             <th>Статус</th>
             <th>Просмотр</th>
             <th>Завершено</th>
-            <th>Рейтинг</th> <!-- Новый столбец для рейтинга -->
+            <th>Рейтинг</th>
+            <th>Ws</th>
+            <th>Wc</th>
+            <th>Wu</th>
+            <th>Denom</th>
+            <!-- Новый столбец для рейтинга -->
             <th>Сопроводительное письмо</th> <!-- Новый столбец для сопроводительного письма -->
 
         </tr>
@@ -115,6 +178,10 @@ $applications = $stmt->get_result();
                 <td><?php echo htmlspecialchars($application['viewed'] ?? 'Не просмотрено'); ?></td>
                 <td><?php echo htmlspecialchars($application['completed'] ?? 'В процессе'); ?></td>
                 <td><?php echo htmlspecialchars($application['freelancer_rating'] ?? 'Нет рейтинга'); ?></td> <!-- Рейтинг фрилансера -->
+                <td><?php echo htmlspecialchars($application['Ws'] ?? 'Нет данных'); ?></td> <!-- Рейтинг фрилансера -->
+                <td><?php echo htmlspecialchars($application['Wc'] ?? 'Нет данных'); ?></td> <!-- Рейтинг фрилансера -->
+                <td><?php echo htmlspecialchars($application['Wu'] ?? 'Нет данных'); ?></td> <!-- Рейтинг фрилансера -->
+                <td><?php echo htmlspecialchars($application['denominator'] ?? 'Нет данных'); ?></td> <!-- Рейтинг фрилансера -->
                 <td>
                     <a href="view_cover_letter.php?id=<?php echo $application['application_id']; ?>">Посмотреть</a>
                 </td>

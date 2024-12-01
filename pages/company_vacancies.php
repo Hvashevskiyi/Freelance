@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once 'company_crypt.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
@@ -10,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
-
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 $role = $_SESSION['role_id'];
 
 // Проверяем, существует ли пользователь
@@ -44,8 +45,8 @@ $vacancies = $stmt->get_result();
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/company_vacancies.css"> <!-- Добавим новый стиль для страницы -->
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/company_vacancies/cv_<?php echo $theme; ?>.css">
     <title>Наши вакансии</title>
     <script>
         function filterVacancies() {
@@ -66,10 +67,25 @@ $vacancies = $stmt->get_result();
                 }
             }
         }
+        // Функция для смены темы и сохранения выбора в куки
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/company_vacancies/cv_${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
     </script>
 </head>
 <body>
 <header>
+    <?php displayuserHistory($userId); ?>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='index.php'">На главную</button>
     <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
         <?php echo htmlspecialchars($_SESSION['username']); ?>

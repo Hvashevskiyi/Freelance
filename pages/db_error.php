@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Ошибка подключения</title>
-    <link rel="stylesheet" href="../assets/styles/error.css"> <!-- Стили для сообщения об ошибке -->
+    <link rel="stylesheet" href="../assets/styles/trash/error.css"> <!-- Стили для сообщения об ошибке -->
 </head>
 <body>
 <div class="error_container">

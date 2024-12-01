@@ -1,8 +1,9 @@
 <?php
 session_start();
 require_once '../includes/db.php';
+require_once 'company_crypt.php';
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 
-// Проверяем, авторизован ли пользователь
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
@@ -10,41 +11,57 @@ if (!isset($_SESSION['user_id'])) {
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
-
 $role = $_SESSION['role_id'];
 
-// Проверяем, существует ли пользователь
 if (!checkUserExists($conn, $userId) || $role != 3) {
-    // Удаляем данные сессии
     session_unset();
     session_destroy();
-    header("Location: login.php"); // Перенаправляем на страницу входа
-    exit;
+    header("Location: login.php");
+    exit();
 }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $vacancyTag = trim(isset($_POST['vacancyTag']) ? $_POST['vacancyTag'] : '');
     $description = trim(isset($_POST['description']) ? $_POST['description'] : '');
     $salary = isset($_POST['salary']) ? $_POST['salary'] : 0;
 
-    // Проверяем, чтобы зарплата была положительным числом
     if ($salary < 0) {
         $error = "Зарплата не может быть отрицательной.";
     } elseif (empty($vacancyTag) || empty($description)) {
         $error = "Имя вакансии и описание не могут быть пустыми!";
     } else {
-        // Подключение к базе данных
-        $conn = getDbConnection();
         $id_company = $_SESSION['user_id'];
 
-        // Подготовка и выполнение запроса на добавление вакансии
-        $stmt = $conn->prepare("INSERT INTO vacancy (VacancyTag, Description, Salary, id_company) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssdi", $vacancyTag, $description, $salary, $id_company);
+        // Начинаем транзакцию
+        $conn->begin_transaction();
 
-        if ($stmt->execute()) {
-            echo "<script> window.location.href='index.php';</script>";
-            exit();
-        } else {
-            $error = "Ошибка: " . $stmt->error;
+        try {
+            // Пытаемся вставить новую вакансию с использованием ON DUPLICATE KEY UPDATE
+            $stmt = $conn->prepare("
+                INSERT INTO vacancy (VacancyTag, Description, Salary, id_company)
+                VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE VacancyTag = VALUES(VacancyTag)");  // Просто обновляем, чтобы избежать дубликата
+
+            $stmt->bind_param("ssdi", $vacancyTag, $description, $salary, $id_company);
+            $stmt->execute();
+
+            // Если запись не была добавлена (affected_rows == 0), то дублирование произошло
+            if ($stmt->affected_rows == 0) {
+                // Записываем ошибку в таблицу error_log
+                $error_message = "ID_".$id_company." Вакансия ".$vacancyTag." с описанием ".$description." и зп равной ".$salary." уже существует.";
+                $error_stmt = $conn->prepare("INSERT INTO error_log (error_message) VALUES (?)");
+                $error_stmt->bind_param("s", $error_message);
+                $error_stmt->execute();
+                $error = "Ошибка: Вакансия с такими данными уже существует!";
+            } else {
+                // Вставка прошла успешно
+                $conn->commit();  // Фиксируем изменения
+                echo "<script> window.location.href='index.php';</script>";
+                exit();
+            }
+        } catch (Exception $e) {
+            $conn->rollback();  // В случае ошибки откатываем транзакцию
+            $error = "Ошибка при добавлении вакансии: " . $e->getMessage();
         }
     }
 }
@@ -54,13 +71,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/index.css">
-    <link rel="stylesheet" href="../assets/styles/post_vacancy.css"> <!-- Подключаем новый стиль -->
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/index/index_<?php echo $theme; ?>.css">
+    <link id="pvStylesheet" rel="stylesheet" href="../assets/styles/post_vacancy/pv_<?php echo $theme; ?>.css">
     <title>Разместить вакансию</title>
+    <script>
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`;
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/index/index_${currentTheme}.css`;
+            document.getElementById('pvStylesheet').href = `../assets/styles/post_vacancy/pv_${currentTheme}.css`;
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+    </script>
 </head>
 <body>
 <header>
+    <?php displayuserHistory($userId); ?>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button class="button_to_main" onclick="window.location.href='index.php'">На главную</button>
 
     <?php if (isset($_SESSION['user_id'])): ?>
@@ -97,9 +130,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         const salary = document.getElementById('salary').value;
         if (salary < 0) {
             alert('Зарплата не может быть отрицательной.');
-            return false; // Остановить отправку формы
+            return false;
         }
-        return true; // Если все ок, форма отправляется
+        return true;
     }
 </script>
 

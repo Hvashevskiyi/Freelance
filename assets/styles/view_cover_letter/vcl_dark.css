@@ -1,0 +1,22 @@
+
+.cover_letter_container {
+    max-width: 800px; /* Максимальная ширина контейнера */
+    margin: 20px auto; /* Центрирование по горизонтали */
+    padding: 20px; /* Отступы внутри контейнера */
+    background: #31302e;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Заголовок списка откликов */
+.cover_letter_container h1 {
+    font-size: 24px; /* Размер шрифта заголовка */
+    margin-bottom: 10px; /* Отступ снизу */
+}
+p {
+    color:#eae0d5;
+}
+a{
+    font-weight: bold;
+    text-decoration: underline ;
+}

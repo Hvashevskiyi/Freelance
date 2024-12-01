@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
 require_once '../includes/checkUserExists.php';
-
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 $role = $_SESSION['role_id'];
 
 // Проверяем, существует ли пользователь
@@ -39,12 +39,28 @@ $applications = $stmt->get_result();
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/applications.css"> <!-- Добавим новый стиль для страницы откликов -->
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/applications/applications_<?php echo $theme; ?>.css">
     <title>Мои отклики</title>
+    <script>
+        // Функция для смены темы и сохранения выбора в куки
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/applications/applications_${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+    </script>
 </head>
 <body>
 <header>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='index.php'">На главную</button>
     <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
         <?php echo htmlspecialchars($_SESSION['username']); ?>

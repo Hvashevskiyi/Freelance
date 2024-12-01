@@ -1,0 +1,65 @@
+
+form {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Легкая тень для объема */
+    padding: 20px;
+    max-width: 500px;
+    margin: 20px auto; /* Центрируем форму на странице */
+}
+
+form button {
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 0;
+    max-width: 200px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+label {
+    margin-bottom: 5px;
+    color: #0a0908;
+}
+
+form button {
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.form-group {
+    display: flex;
+    justify-content: center; /* Центрируем содержимое */
+    margin-top: 20px;
+}
+
+input[type="file"] {
+    display: block; /* Делаем элемент блочным */
+    width: 100%; /* Ширина 100% внутри контейнера */
+    max-width: 300px; /* Максимальная ширина файла */
+    padding: 10px;
+
+    border-radius: 8px;
+
+    background-color: #f0f4f8;
+    border: 1px dashed #ccc;
+    cursor: pointer;
+    text-align: center; /* Текст внутри инпута также выровнен */
+}
+
+input[type="file"]:hover {
+    border-color: #35424a;
+}
+
+/* Кнопка возврата */
+button.back-button {
+    background-color: #ccc;
+    color: #333;
+    font-size: 0.9em;
+    margin-top: 10px;
+}
+
+ button.back-button:hover {
+    background-color: #bbb;
+}

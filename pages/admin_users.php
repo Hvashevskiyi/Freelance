@@ -3,6 +3,7 @@ session_start();
 require_once '../includes/db.php';
 
 $conn = getDbConnection();
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 $role = $_SESSION['role_id'];
@@ -27,11 +28,25 @@ $users = $stmt->get_result();
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/admin_users.css"> <!-- Новый стиль для управления пользователями -->
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/admin_users/au_<?php echo $theme; ?>.css">
 
     <title>Управление пользователями</title>
     <script>
+        // Функция для смены темы и сохранения выбора в куки
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/admin_users/au_${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
+
         function filterUsers() {
             const input = document.getElementById('searchInput');
             const filter = input.value.trim().toLowerCase(); // Удаляем пробелы в начале и в конце
@@ -63,10 +78,12 @@ $users = $stmt->get_result();
 </head>
 <body>
 <header>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='admin_vacancies.php'">Управление вакансиями</button>
     <button onclick="window.location.href='admin_stats.php'">Статистика</button>
     <button onclick="window.location.href='admin_applications.php'">История откликов</button>
     <button onclick="window.location.href='admin_weights.php'">Рейтинг</button>
+    <button onclick="window.location.href='admin_freelance.php'">Фрилансеры</button>
     <button onclick="window.location.href='index.php'">На главную</button>
 </header>
 

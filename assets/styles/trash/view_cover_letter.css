@@ -1,0 +1,19 @@
+@import url('trash/base.css');
+
+/* Основной стиль для контейнера откликов */
+.cover_letter_container {
+    max-width: 800px; /* Максимальная ширина контейнера */
+    margin: 20px auto; /* Центрирование по горизонтали */
+    padding: 20px; /* Отступы внутри контейнера */
+    border: 1px solid #ddd; /* Рамка вокруг контейнера */
+    border-radius: 8px; /* Скругление углов */
+    background-color: #fff; /* Цвет фона */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
+}
+
+/* Заголовок списка откликов */
+.cover_letter_container h1 {
+    font-size: 24px; /* Размер шрифта заголовка */
+    margin-bottom: 10px; /* Отступ снизу */
+    color: #333; /* Цвет текста заголовка */
+}

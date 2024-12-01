@@ -1,0 +1,85 @@
+
+.applications_container {
+    max-width: 800px; /* Максимальная ширина контейнера */
+    margin: 20px auto; /* Центрирование по горизонтали */
+    padding: 20px; /* Отступы внутри контейнера */
+    border: 1px solid #ddd; /* Рамка вокруг контейнера */
+    border-radius: 8px; /* Скругление углов */
+    background-color: #fff; /* Цвет фона */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Тень для контейнера */
+}
+
+/* Заголовок списка откликов */
+.applications_container h1 {
+    font-size: 24px; /* Размер шрифта заголовка */
+    margin-bottom: 10px; /* Отступ снизу */
+    color: #333; /* Цвет текста заголовка */
+}
+
+/* Таблица откликов */
+.applications_table {
+    width: 100%; /* Ширина таблицы */
+    border-collapse: collapse; /* Убираем двойные границы */
+}
+
+/* Заголовки таблицы */
+.applications_table th {
+    background-color: #007bff; /* Цвет фона заголовков */
+    color: white; /* Цвет текста заголовков */
+    padding: 10px; /* Внутренние отступы */
+    text-align: left; /* Выравнивание текста */
+}
+
+/* Ячейки таблицы */
+.applications_table td {
+    padding: 10px; /* Внутренние отступы */
+    border-bottom: 1px solid #ddd; /* Рамка снизу ячейки */
+}
+
+/* Чередование цветов строк для удобства чтения */
+.applications_table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Цвет для четных строк */
+}
+
+/* Стиль для редактирования кнопок */
+.edit-button {
+    background-color: #28a745; /* Цвет фона кнопки редактирования */
+    color: #fff; /* Цвет текста кнопки редактирования */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Скругление углов */
+    padding: 5px 10px; /* Внутренние отступы */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+/* Эффект при наведении на кнопку редактирования */
+.edit-button:hover {
+    background-color: #218838; /* Темный цвет при наведении */
+}
+
+/* Стиль для кнопки удаления отклика */
+.delete-button {
+    background-color: #dc3545; /* Цвет фона кнопки удаления */
+    color: #fff; /* Цвет текста кнопки удаления */
+    border: none; /* Без рамки */
+    border-radius: 5px; /* Скругление углов */
+    padding: 5px 10px; /* Внутренние отступы */
+    cursor: pointer; /* Курсор при наведении */
+    transition: background-color 0.3s; /* Плавный переход цвета */
+}
+
+/* Эффект при наведении на кнопку удаления */
+.delete-button:hover {
+    background-color: #c82333; /* Темный цвет при наведении */
+}
+
+
+/* Стили для поля поиска */
+#searchInput {
+    width: 80%; /* Ширина поля поиска на 100% */
+    padding: 10px; /* Внутренние отступы */
+    margin-bottom: 20px; /* Отступ снизу */
+    border: 1px solid #ccc; /* Рамка вокруг поля */
+    border-radius: 5px; /* Скругление углов */
+    font-size: 16px; /* Размер шрифта */
+}

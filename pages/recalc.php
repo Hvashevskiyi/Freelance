@@ -1,21 +1,24 @@
 <?php
-session_start();
+
 require_once '../includes/db.php';
 
 $conn = getDbConnection();
 
 // Получаем текущие весовые коэффициенты из таблицы weights
-$weights = $conn->query("SELECT name, value FROM weights");
-$weightsData = [];
-while ($row = $weights->fetch_assoc()) {
-    $weightsData[$row['name']] = $row['value'];
-}
+
+// Получаем текущие веса (последнюю запись)
+$stmt = $conn->query("
+    SELECT completed_weight, not_completed_weight, avg_weight 
+    FROM weights 
+    ORDER BY created_at DESC 
+    LIMIT 1
+");
+$weightsData = $stmt->fetch_assoc();
 
 // Устанавливаем значения весов с учетом значений по умолчанию
 $w_completed = $weightsData['completed_weight'];
 $w_not_completed = $weightsData['not_completed_weight'];
 $w_avg = $weightsData['avg_weight'];
-
 
 // Получаем всех фрилансеров
 $freelancers = $conn->query("SELECT id FROM Users WHERE role_id = 2");
@@ -39,32 +42,28 @@ while ($freelancer = $freelancers->fetch_assoc()) {
 
     $completedCount = $orderStats['completed_orders'];
     $notCompletedCount = $orderStats['not_completed_orders'];
-    $averageRating = $orderStats['average_rating'] ?? 0;
-
-    // Выводим информацию о заказах и среднем рейтинге
+    $averageRating = $orderStats['average_rating'] ?? 0;//median
 
     // Рассчитываем новый рейтинг
     if ($completedCount + $notCompletedCount > 0) {
-
-        $denominator = $w_not_completed*$w_completed+$w_avg+$w_completed+$w_not_completed;
-        $norm_s = $averageRating/5;
-        $c_ratio = $completedCount/($completedCount+$notCompletedCount);
-        $n_c_ratio= $notCompletedCount/($completedCount+$notCompletedCount);
-        $numerator = $norm_s*$w_avg+$c_ratio*$w_completed-$n_c_ratio*$w_not_completed;
-        $newRating = 5*$numerator / $denominator;
+        $denominator = $w_not_completed * $w_completed + $w_avg + $w_completed + $w_not_completed;
+        $norm_s = $averageRating / 5;
+        $c_ratio = $completedCount / ($completedCount + $notCompletedCount);
+        $n_c_ratio = $notCompletedCount / ($completedCount + $notCompletedCount);
+        $num_w_s =$norm_s * $w_avg;
+        $num_w_c = $c_ratio * $w_completed;
+        $num_w_u = $n_c_ratio * $w_not_completed;
+        $numerator = $num_w_s + $num_w_c - $num_w_u;
+        $newRating = 5 * $numerator / $denominator;
         $newRating = max(0, min(5, round($newRating, 2)));
     } else {
         $newRating = 0;
     }
 
     // Обновляем рейтинг фрилансера
-    $updateRatingStmt = $conn->prepare("UPDATE Users SET average_rating = ? WHERE id = ?");
-    $updateRatingStmt->bind_param("di", $newRating, $freelancerId);
+    $updateRatingStmt = $conn->prepare("UPDATE Users SET average_rating = ?, num_w_s = ?,num_w_c = ?,num_w_u = ?,denom = ? WHERE id = ?");
+    $updateRatingStmt->bind_param("dddddi", $newRating,$num_w_s,$num_w_c,$num_w_u,$denominator, $freelancerId);
     $updateRatingStmt->execute();
-
-
 }
 
-$conn->close();
-echo "<script>alert('Рейтинги перерассчитаны для всех фрилансеров');</script>";
 ?>

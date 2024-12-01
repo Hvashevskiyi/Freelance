@@ -1,7 +1,8 @@
 <?php
 session_start();
 require_once '../includes/db.php';
-
+require_once 'company_crypt.php';
+$theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
     exit;
@@ -78,10 +79,22 @@ $applications = $stmt->get_result();
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../assets/styles/base.css">
-    <link rel="stylesheet" href="../assets/styles/company_applications.css"> <!-- Новый стиль для страницы откликов компании -->
+    <link id="themeStylesheet" rel="stylesheet" href="../assets/styles/<?php echo $theme; ?>.css">
+    <link id="SubthemeStylesheet" rel="stylesheet" href="../assets/styles/company_applications/ca_<?php echo $theme; ?>.css">
     <title>Отклики на вакансии</title>
     <script>
+        function toggleTheme() {
+            let currentTheme = document.body.classList.toggle('dark') ? 'dark' : 'light';
+            document.cookie = `theme=${currentTheme}; path=/; max-age=31536000`; // Кука на 1 год
+            document.getElementById('themeStylesheet').href = `../assets/styles/${currentTheme}.css`;
+            document.getElementById('SubthemeStylesheet').href = `../assets/styles/company_applications/ca_${currentTheme}.css`;
+        }
+
+        // Применение темы при загрузке страницы
+        document.addEventListener("DOMContentLoaded", function() {
+            const theme = "<?php echo $theme; ?>";
+            document.body.classList.toggle('dark', theme === 'dark');
+        });
         function filterApplications() {
             const input = document.getElementById('searchInput');
             const filter = input.value.trim().toLowerCase(); // Удаляем пробелы в начале и в конце
@@ -138,6 +151,8 @@ $applications = $stmt->get_result();
 </head>
 <body>
 <header>
+    <?php displayuserHistory($userId); ?>
+    <button onclick="toggleTheme()">Сменить тему</button>
     <button onclick="window.location.href='index.php'">На главную</button>
     <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
         <?php echo htmlspecialchars($_SESSION['username']); ?>

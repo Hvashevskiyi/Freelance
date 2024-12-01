@@ -1,0 +1,44 @@
+
+.container {
+    width: 60%;
+    margin: 20px auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+button {
+    margin-left: 5px;
+}
+
+
+/* Стиль для заголовков */
+label {
+    font-weight: bold;
+}
+
+/* Поля ввода */
+input[type="number"] {
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Отступы для отдельных разделов */
+h2 {
+    margin-top: 40px;
+}
+
+/* Стили для iframe */
+iframe {
+    display: none;
+}
