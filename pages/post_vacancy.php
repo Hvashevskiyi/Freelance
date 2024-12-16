@@ -5,8 +5,8 @@ require_once 'company_crypt.php';
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
+    header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
+    exit;
 }
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error_stmt->bind_param("s", $error_message);
                 $error_stmt->execute();
                 $error = "Ошибка: Вакансия с такими данными уже существует!";
+                $conn->commit();  // Фиксируем изменения
             } else {
                 // Вставка прошла успешно
                 $conn->commit();  // Фиксируем изменения

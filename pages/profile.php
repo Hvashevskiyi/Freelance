@@ -67,6 +67,27 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
     $notCompletedCount = $statusCounts['not_completed'] ?? 0;
 }
 
+$stmt = $conn->prepare("
+    SELECT r.rating, r.comment, r.created_at, u.name AS reviewer_name
+    FROM reviews r
+    INNER JOIN Users u ON r.reviewer_user_id = u.id
+    WHERE r.reviewed_user_id = ?
+    ORDER BY r.created_at DESC
+");
+$stmt->bind_param("i", $userId);
+$stmt->execute();
+$reviews = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+$hasReviewed = false;
+
+if (isset($_SESSION['user_id'])) {
+    $sessionId = $_SESSION['user_id'];
+
+    $stmt = $conn->prepare("SELECT id FROM reviews WHERE reviewer_user_id = ? AND reviewed_user_id = ?");
+    $stmt->bind_param("ii", $sessionId, $userId);
+    $stmt->execute();
+    $hasReviewed = $stmt->get_result()->num_rows > 0;
+}
 
 ?>
 
@@ -153,7 +174,7 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
 
         </div>
         <div class="profile-info">
-            <?php if ($user['role_id'] == 3): // Если это компания ?>
+            <?php if ($user['role_id'] == 3 or $user['role_id'] == 1 ): // Если это компания ?>
                 <p><strong>Название:</strong> <?php echo htmlspecialchars($user['name']); ?></p>
                 <p><strong>Email:</strong> <?php echo htmlspecialchars($user['email']); ?></p>
                 <p><strong>О нас:</strong> <?php echo htmlspecialchars($user['text']); ?></p>
@@ -171,14 +192,89 @@ if ($user['role_id'] == 2) { // Проверяем, если пользоват�
                 <p><strong>Не выполнено:</strong> <?php echo $notCompletedCount; ?></p>
             <?php endif; ?>
         </div>
+
     </div>
 
     <div class="button-container">
         <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $user['id']): ?>
             <button onclick="window.location.href='edit_profile.php?id=<?php echo $user['id']; ?>'">Редактировать</button>
         <?php endif; ?>
+        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== $user['id']): ?>
+            <!-- На странице профиля пользователя -->
+            <button onclick="window.open('chat.php?with=<?php echo $user['id']; ?>', '_blank', 'width=800,height=600');">Чат</button>
+        <?php endif; ?>
+
         <button onclick="window.location.href='index.php';">Назад</button>
     </div>
+
+    <div class="reviews-section">
+        <h2>Отзывы</h2>
+
+        <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] !== $user['id'] && !$hasReviewed): ?>
+            <div class="review-form">
+                <form action="add_review.php" method="POST">
+                    <input type="hidden" name="reviewed_user_id" value="<?php echo $user['id']; ?>">
+                    <label for="rating">Оценка:</label>
+                    <div class="rating" id="rating">
+                        <span class="star" data-value="1">&#9733;</span>
+                        <span class="star" data-value="2">&#9733;</span>
+                        <span class="star" data-value="3">&#9733;</span>
+                        <span class="star" data-value="4">&#9733;</span>
+                        <span class="star" data-value="5">&#9733;</span>
+                    </div>
+                    <input type="hidden" name="rating" id="rating-input" value="">
+
+                    <script>
+                        const stars = document.querySelectorAll('.star');
+                        const ratingInput = document.getElementById('rating-input');
+
+                        stars.forEach((star, index) => {
+                            star.addEventListener('mouseover', () => {
+                                stars.forEach((s, i) => s.classList.toggle('active', i <= index));
+                            });
+
+                            star.addEventListener('mouseout', () => {
+                                stars.forEach(s => s.classList.remove('active'));
+                            });
+
+                            star.addEventListener('click', () => {
+                                const selectedRating = index + 1;
+                                ratingInput.value = selectedRating; // Устанавливаем значение в скрытое поле
+                                stars.forEach((s, i) => {
+                                    s.style.color = i < selectedRating ? 'gold' : 'lightgray';
+                                });
+                            });
+                        });
+
+                    </script>
+
+                    <label for="comment">Отзыв:</label>
+                    <textarea name="comment" id="comment" rows="4" required></textarea>
+                    <button type="submit">Оставить отзыв</button>
+                </form>
+
+            </div>
+        <?php elseif ($hasReviewed): ?>
+            <p>Вы уже оставили отзыв для этого пользователя.</p>
+        <?php endif; ?>
+
+        <div class="reviews-list">
+            <?php if (empty($reviews)): ?>
+                <p>Отзывов пока нет.</p>
+            <?php else: ?>
+                <?php foreach ($reviews as $review): ?>
+                    <div class="review">
+                        <p><strong><?php echo htmlspecialchars($review['reviewer_name']); ?></strong> оставил(а) оценку
+                            <span><?php echo str_repeat('⭐', $review['rating']); ?></span>:</p>
+                        <p><?php echo htmlspecialchars($review['comment']); ?></p>
+                        <p class="review-date">Оставлено: <?php echo date("d.m.Y H:i", strtotime($review['created_at'])); ?></p>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+    </div>
+
 </div>
+
 </body>
 </html>

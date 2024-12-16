@@ -69,3 +69,54 @@ button:hover {
 .button-container a {
     margin-right: 10px; /* Отступ между кнопками */
 }
+
+.reviews-section {
+    margin-top: 30px;
+
+}
+
+.review-form {
+    margin-bottom: 20px;
+}
+
+.reviews-list {
+    margin-top: 20px;
+}
+
+.review {
+    margin-bottom: 15px;
+    padding: 10px;
+
+    border: 1px solid #0a0908;
+    border-radius: 5px;
+    background-color: #5e503f; /* Цвет кнопки */
+}
+
+.review p {
+    margin: 5px 0;
+    color: #eae0d5;
+}
+
+.review .review-date {
+    font-size: 0.9em;
+    color: #666;
+}
+.rating {
+    display: flex;
+    direction: row;
+    justify-content: center;
+    gap: 5px;
+}
+.star {
+    font-size: 2rem;
+    color: lightgray;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.star:hover,
+.star.active {
+    color: gold;
+}
+.star:hover ~ .star {
+    color: lightgray;
+}

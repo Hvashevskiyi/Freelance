@@ -24,7 +24,7 @@ if (!checkUserExists($conn, $userId)|| $role != 2) {
 
 // Получаем отклики фрилансера с названием компании
 $stmt = $conn->prepare("
-    SELECT a.id, a.cover_letter, v.VacancyTag, v.id AS vacancy_id, u.name AS company_name
+    SELECT a.id, a.cover_letter, v.VacancyTag, v.id AS vacancy_id, u.name AS company_name, u.id AS company_id
     FROM applications a
     JOIN vacancy v ON a.vacancy_id = v.id
     JOIN users u ON v.id_company = u.id
@@ -87,7 +87,12 @@ $applications = $stmt->get_result();
                         <?php echo htmlspecialchars($application['VacancyTag']); ?>
                     </a>
                 </td>
-                <td><?php echo htmlspecialchars($application['company_name']); ?></td> <!-- Отображаем название компании -->
+                <td>
+                    <a href="profile.php?id=<?php echo $application['company_id']; ?>">
+                        <?php echo htmlspecialchars($application['company_name']); ?>
+                    </a>
+                </td>
+                <!-- Отображаем название компании -->
                 <td><?php echo htmlspecialchars($application['cover_letter']); ?></td>
                 <td>
                     <a href="edit_application.php?id=<?php echo $application['id']; ?>">Редактировать</a>

@@ -4,7 +4,10 @@ require_once '../includes/db.php';
 
 $applicationId = intval($_GET['id']);
 $conn = getDbConnection();
-
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
+    exit;
+}
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
@@ -46,34 +49,42 @@ function checkFileStatus($filePath) {
         return 'unreadable'; // Файл недоступен для чтения
     }
 
-    $fileHandle = @fopen($filePath, "r");
-    if ($fileHandle === false) {
-        return 'unreadable'; // Файл заблокирован для открытия
-    }
-    fclose($fileHandle);
-
     $fileExtension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+    $fileMimeType = mime_content_type($filePath);
 
     // Проверка для PDF файлов
-    if ($fileExtension === 'pdf') {
+    if ($fileExtension === 'pdf' && $fileMimeType === 'application/pdf') {
         $fileData = file_get_contents($filePath, false, null, 0, 4);
-        return $fileData !== "%PDF" ? 'corrupted' : 'valid';
+        return strpos($fileData, '%PDF') === 0 ? 'valid' : 'corrupted';
     }
 
     // Проверка для TXT файлов
-    if ($fileExtension === 'txt') {
+    if ($fileExtension === 'txt' && $fileMimeType === 'text/plain') {
         $fileData = file_get_contents($filePath);
-        return empty($fileData) ? 'corrupted' : 'valid';
+        return !empty(trim($fileData)) ? 'valid' : 'corrupted';
     }
 
-    // Проверка для DOC и DOCX файлов
-    if (in_array($fileExtension, ['doc', 'docx'])) {
-        $fileData = file_get_contents($filePath, false, null, 0, 5);
-        return substr($fileData, 0, 5) !== "\xD0\xCF\x11\xE0\xA1" ? 'corrupted' : 'valid';
+    // Проверка для DOCX (как ZIP-архивов)
+    if ($fileExtension === 'docx' && $fileMimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+        $zip = new ZipArchive();
+        if ($zip->open($filePath) === true) {
+            $zip->close();
+            return 'valid';
+        } else {
+            return 'corrupted';
+        }
     }
 
-    return 'valid'; // Для других форматов файлов
+    // Проверка для DOC (старый формат)
+    if ($fileExtension === 'doc' && $fileMimeType === 'application/msword') {
+        $fileData = file_get_contents($filePath, false, null, 0, 8);
+        return strpos($fileData, "\xD0\xCF\x11\xE0\xA1") === 0 ? 'valid' : 'corrupted';
+    }
+
+    // Другие типы файлов считаются валидными без дополнительной проверки
+    return 'valid';
 }
+
 
 
 // Проверяем файл

@@ -3,7 +3,7 @@ session_start();
 require_once '../includes/db.php';
 
 if (!isset($_GET['id']) || !isset($_SESSION['user_id'])) {
-    header("Location: applications.php"); // Если нет ID отклика или пользователь не авторизован, перенаправляем
+    header("Location: index.php"); // Если нет ID отклика или пользователь не авторизован, перенаправляем
     exit;
 }
 

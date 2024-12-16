@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
     exit;
 }
-
 require_once '../includes/checkUserExists.php';
 $userId = $_SESSION['user_id'];
 

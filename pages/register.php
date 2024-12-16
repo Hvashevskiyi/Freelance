@@ -43,10 +43,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("sssssii", $name, $email, $hashed_password, $text, $vacancy, $role, $image_id);
                 $stmt->execute();
 
+                // Получаем ID нового пользователя
+                $userId = $stmt->insert_id;
+
+                // Создание чата с администратором
+                $adminId = 1;  // ID администратора
+                $stmt = $conn->prepare("INSERT INTO chats (user_one_id, user_two_id) VALUES (?, ?)");
+                $stmt->bind_param("ii", $userId, $adminId);
+                $stmt->execute();
+                $chatId = $stmt->insert_id;
+
+                // Отправка первого сообщения от администратора
+                $message = "Добро пожаловать! Все спорные вопросы просим решать через нас.";
+                $stmt = $conn->prepare("INSERT INTO messages (chat_id, sender_id, message) VALUES (?, ?, ?)");
+                $stmt->bind_param("iis", $chatId, $adminId, $message);
+                $stmt->execute();
+
                 // Автоматическая авторизация после регистрации
-                $_SESSION['user_id'] = $stmt->insert_id;
+                $_SESSION['user_id'] = $userId;
                 $_SESSION['username'] = $name;
 
+                // Перенаправляем на главную страницу
                 header("Location: index.php");
                 exit;
             }
@@ -119,7 +136,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <span id="password8" style="color:red; display:none;">Пароль минимум 8 символов</span>
         <textarea name="text" placeholder="Расскажите о себе" required></textarea>
 
-        <!-- Выпадающий список для выбора роли -->
         <select name="role" id="role" onchange="toggleVacancyField()" required>
             <option value="2">Фрилансер</option>
             <option value="3">Компания</option>

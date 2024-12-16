@@ -4,7 +4,10 @@ require_once '../includes/db.php';
 $conn = getDbConnection();
 
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
-
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
+    exit;
+}
 // Проверяем, авторизован ли пользователь
 if (isset($_SESSION['user_id'])) {
     // Получаем роль пользователя

@@ -117,7 +117,8 @@ if (isset($_SESSION['user_id'])) {
         <button onclick="window.location.href='profile.php?id=<?php echo $_SESSION['user_id']; ?>'">
             <?php echo htmlspecialchars($_SESSION['username']); ?>
         </button>
-        <?php if ($userRole == 1): ?> <!-- Проверяем, если пользователь фрилансер -->
+        <?php if ($userRole == 1): ?>
+            <button onclick="window.open('chat.php?with=1', '_blank', 'width=800,height=600');">Чат</button><!-- Проверяем, если пользователь фрилансер -->
             <button onclick="window.location.href='admin_users.php'">Управление пользователями</button>
             <button onclick="window.location.href='admin_vacancies.php'">Управление вакансиями</button>
             <button onclick="window.location.href='admin_stats.php'">Статистика</button>
@@ -131,9 +132,12 @@ if (isset($_SESSION['user_id'])) {
         <?php if ($userRole == 2): ?>
             <?php displayHistory($userId); ?>
             <button onclick="window.location.href='applications.php'">Мои отклики</button>
+            <button onclick="window.open('chat.php?with=1', '_blank', 'width=800,height=600');">Чат</button>
+
         <?php endif; ?>
         <?php if ($userRole == 3): ?>
             <?php displayuserHistory($userId); ?>
+            <button onclick="window.open('chat.php?with=1', '_blank', 'width=800,height=600');">Чат</button>
             <button onclick="window.location.href='company_vacancies.php'">Наши вакансии</button>
             <button onclick="window.location.href='company_applications.php'">Отклики</button>
             <button onclick="window.location.href='post_vacancy.php'">Разместить вакансию</button>

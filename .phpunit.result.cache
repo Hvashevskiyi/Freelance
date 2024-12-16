@@ -1,0 +1,1 @@
+{"version":1,"defects":{"MyTests::testPostVacancyErrorHandling":7},"times":{"MyTests::testCheckUserExists":0.008,"MyTests::testVigenereEncryptionAndDecryption":0.005,"MyTests::testPostVacancyErrorHandling":0.019}}

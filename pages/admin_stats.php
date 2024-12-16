@@ -3,7 +3,10 @@ session_start();
 require_once '../includes/db.php';
 
 require_once '../includes/checkUserExists.php';
-
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php"); // Если пользователь не авторизован, перенаправляем на страницу входа
+    exit;
+}
 $userId = $_SESSION['user_id'];
 $conn = getDbConnection();
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';

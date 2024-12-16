@@ -12,7 +12,7 @@ $vacancyId = intval($_GET['id']);
 $conn = getDbConnection();
 $theme = isset($_COOKIE['theme']) ? $_COOKIE['theme'] : 'light';
 
-$stmt = $conn->prepare("SELECT v.VacancyTag, v.Description, v.Salary, u.name AS author_name FROM vacancy v JOIN users u ON v.id_company = u.id WHERE v.id = ?");
+$stmt = $conn->prepare("SELECT v.VacancyTag, v.Description, v.Salary, v.views, u.name AS author_name FROM vacancy v JOIN users u ON v.id_company = u.id WHERE v.id = ?");
 $stmt->bind_param("i", $vacancyId);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -26,7 +26,10 @@ $vacancy = $result->fetch_assoc();
 $userRole = 0;
 $isFreelancer = false;
 $hasApplied = false;
-
+$views = $vacancy['views']+1;
+$stmt = $conn->prepare("UPDATE vacancy SET views = ? WHERE id = ?");
+$stmt->bind_param("ii", $views,$vacancyId);
+$stmt->execute();
 if (isset($_SESSION['user_id']) ) {
     $userId = $_SESSION['user_id'];
 
@@ -52,59 +55,60 @@ if (isset($_SESSION['user_id']) ) {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isFreelancer && !$hasApplied) {
     $coverLetter = $_POST['cover_letter'];
+    $fileData = $_POST['fileData'] ?? null;
 
-    if (isset($_FILES['attachment'])) {
-        $fileTmpPath = $_FILES['attachment']['tmp_name'];
-        $fileName = $_FILES['attachment']['name'];
-        $fileSize = $_FILES['attachment']['size'];
-        $fileNameCmps = explode(".", $fileName);
-        $fileExtension = strtolower(end($fileNameCmps));
+    if ($fileData) {
+        // Декодируем файл из Base64
+        list($type, $data) = explode(';', $fileData);
+        list(, $data) = explode(',', $data);
+        $data = base64_decode($data);
 
-        $allowedFileExtensions = ['pdf', 'txt', 'doc', 'docx'];
-        $maxFileSize = 10 * 1024 * 1024; // 10 MB
-
-        if (in_array($fileExtension, $allowedFileExtensions) && $fileSize <= $maxFileSize) {
-            // Читаем первые байты файла для проверки сигнатуры
-            $fileHandle = fopen($fileTmpPath, 'rb');
-            $fileHeader = fread($fileHandle, 4); // Читаем первые 4 байта
-            fclose($fileHandle);
-
-            $isValid = false;
-
-            if ($fileExtension === 'pdf' && $fileHeader === "%PDF") {
-                $isValid = true;
-            } elseif (($fileExtension === 'doc' || $fileExtension === 'docx') && substr($fileHeader, 0, 2) === "PK") {
-                $isValid = true;
-            } elseif ($fileExtension === 'txt') {
-                // Проверка для TXT — читаемость символов
-                $fileContent = file_get_contents($fileTmpPath);
-                $isValid = mb_check_encoding($fileContent, 'UTF-8'); // Проверяем, что текст в кодировке UTF-8
-            }
-
-            if ($isValid) {
-                // Если файл прошел все проверки
-                $uploadFileDir = '../uploads/';
-                $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-                $dest_path = $uploadFileDir . $newFileName;
-
-                if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                    $stmt = $conn->prepare("INSERT INTO applications (freelancer_id, vacancy_id, cover_letter, file_path) VALUES (?, ?, ?, ?)");
-                    $stmt->bind_param("iiss", $userId, $vacancyId, $coverLetter, $dest_path);
-                    if ($stmt->execute()) {
-                        header("Location: vacancy.php?id=" . $vacancyId);
-                        exit;
-                    }
-                } else {
-                    echo "<script>alert('Ошибка при перемещении файла на сервер.');</script>";
-                }
-            } else {
-                echo "<script>alert('Ошибка: файл поврежден или имеет неверный формат.');</script>";
-            }
-        } else {
-            echo "<script>alert('Ошибка: файл должен быть PDF, TXT, DOC, DOCX и не более 10MB.');</script>";
+        // Проверяем сигнатуру файла
+        $isValidFile = false;
+        if (substr($data, 0, 4) === '%PDF') {
+            $isValidFile = true; // PDF-файл
+        } elseif (substr($data, 0, 2) === 'PK') {
+            $isValidFile = true; // DOCX/ZIP-файл
+        } elseif (mb_detect_encoding($data, 'UTF-8', true)) {
+            $isValidFile = true; // TXT-файл
         }
+
+        if (!$isValidFile) {
+            echo "<script>alert('Ошибка: файл повреждён.');</script>";
+            exit;
+        }
+
+        // Сохраняем файл на сервере
+        $uploadFileDir = '../uploads/';
+        do {
+            // Генерируем уникальное имя с исходным расширением
+            $originalExtension = pathinfo($_FILES['attachment']['name'], PATHINFO_EXTENSION);
+            $newFileName = md5(uniqid(time(), true)) . '.' . $originalExtension;
+            $dest_path = $uploadFileDir . $newFileName;
+        } while (file_exists($dest_path));
+        
+           try{
+               if (file_put_contents($dest_path, $data)) {
+               $stmt = $conn->prepare("INSERT INTO applications (freelancer_id, vacancy_id, cover_letter, file_path) VALUES (?, ?, ?, ?)");
+               $stmt->bind_param("iiss", $userId, $vacancyId, $coverLetter, $dest_path);
+               if ($stmt->execute()) {
+                   echo "<script>
+            localStorage.removeItem('uploadedFile');
+            window.location.href = 'index.php'; // Перенаправляем на страницу профиля
+          </script>";
+                   exit;
+               }
+               }
+           } catch(Exception $e){
+               echo "<script>alert('Ошибка при сохранении файла.');</script>";
+               exit;
+           }
+
     } else {
-        echo "<script>alert('Ошибка при загрузке файла.');</script>";
+        echo "<script>alert('Ошибка: файл отсутствует.');
+      localStorage.removeItem('uploadedFile');
+   window.location.href = 'index.php'; </script>";
+        exit;
     }
 
 }
@@ -130,66 +134,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isFreelancer && !$hasApplied) {
             document.body.classList.toggle('dark', theme === 'dark');
         });
 
-        function validateFile() {
-            const fileInput = document.querySelector('input[type="file"]');
-            const submitButton = document.querySelector('input[type="submit"]');
-            const warningText = document.getElementById('fileWarning');
-            const maxFileSize = 10 * 1024 * 1024;
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const fileInput = document.getElementById('attachment');
+            const fileWarning = document.getElementById('fileWarning');
+            const submitButton = document.getElementById('submitButton');
+            const fileDataInput = document.getElementById('fileData');
             const allowedExtensions = ['pdf', 'txt', 'doc', 'docx'];
-            let isValid = true;
-            let errorMessage = '';
+            const maxFileSize = 10 * 1024 * 1024; // 10 MB
 
-            if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const fileExtension = file.name.split('.').pop().toLowerCase();
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                fileWarning.style.display = 'none';
+                submitButton.style.display = 'none';
 
-            if (!allowedExtensions.includes(fileExtension)) {
-            errorMessage = "Ошибка: допустимые форматы файлов - PDF, TXT, DOC, DOCX.";
-            isValid = false;
-        } else if (file.size > maxFileSize) {
-            errorMessage = "Ошибка: файл должен быть не более 10MB.";
-            isValid = false;
-        } else if (fileExtension === 'pdf' || fileExtension === 'doc' || fileExtension === 'docx' || fileExtension === 'txt') {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-            const fileContent = new Uint8Array(e.target.result.slice(0, 4)); // Читаем первые 4 байта
+                if (!file) {
+                    fileWarning.textContent = 'Ошибка: файл не выбран.';
+                    fileWarning.style.display = 'block';
+                    return;
+                }
 
-            if (fileExtension === 'pdf' && fileContent[0] !== 0x25 || fileContent[1] !== 0x50 || fileContent[2] !== 0x44 || fileContent[3] !== 0x46) {
-            errorMessage = "Ошибка: файл поврежден или не является PDF.";
-            isValid = false;
-        } else if ((fileExtension === 'doc' || fileExtension === 'docx') && !(fileContent[0] === 0x50 && fileContent[1] === 0x4B)) {
-            errorMessage = "Ошибка: файл поврежден или не является DOC/DOCX.";
-            isValid = false;
-        } else if (fileExtension === 'txt' && !fileContent.every((byte) => byte >= 0x20 || byte === 0x0A || byte === 0x0D)) {
-            errorMessage = "Ошибка: файл поврежден или не является TXT.";
-            isValid = false;
-        }
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (!allowedExtensions.includes(fileExtension)) {
+                    fileWarning.textContent = 'Ошибка: допустимые форматы файлов - PDF, TXT, DOC, DOCX.';
+                    fileWarning.style.display = 'block';
+                    return;
+                }
 
-            if (!isValid) {
-            warningText.textContent = errorMessage;
-            warningText.style.display = 'block';
-            submitButton.style.display = 'none';
-        } else {
-            warningText.style.display = 'none';
-            submitButton.style.display = 'inline-block';
-        }
-        };
-            reader.readAsArrayBuffer(file.slice(0, 4)); // Читаем первые 4 байта
-        } else {
-            warningText.style.display = 'none';
-            submitButton.style.display = 'inline-block';
-        }
-        } else {
-            errorMessage = "Ошибка: файл не выбран.";
-            isValid = false;
-        }
+                if (file.size > maxFileSize) {
+                    fileWarning.textContent = 'Ошибка: файл должен быть не более 10MB.';
+                    fileWarning.style.display = 'block';
+                    return;
+                }
 
-            if (!isValid) {
-            warningText.textContent = errorMessage;
-            warningText.style.display = 'block';
-            submitButton.style.display = 'none';
-        }
-        }
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const fileContent = e.target.result.split(',')[1]; // Получаем только Base64-данные
+                    const decodedData = atob(fileContent); // Декодируем Base64 в бинарные данные
+
+                    // Проверяем сигнатуры файла
+                    let isValidFile = false;
+                    if (fileExtension === 'pdf' && decodedData.startsWith('%PDF')) {
+                        isValidFile = true; // PDF-файл
+                    } else if ((fileExtension === 'doc' || fileExtension === 'docx') && decodedData.startsWith('PK')) {
+                        isValidFile = true; // DOCX/ZIP-файл
+                    } else if (fileExtension === 'txt' && decodedData.trim().length > 0) {
+                        isValidFile = true; // TXT-файл
+                    }
+
+                    if (!isValidFile) {
+                        fileWarning.textContent = 'Ошибка: файл повреждён.';
+                        fileWarning.style.display = 'block';
+                        return;
+                    }
+
+                    // Если файл валидный, сохраняем его в скрытое поле
+                    fileDataInput.value = e.target.result;
+                    submitButton.style.display = 'inline-block';
+                };
+
+                reader.readAsDataURL(file);
+            });
+
+            form.addEventListener('submit', (event) => {
+                if (!fileDataInput.value) {
+                    fileWarning.textContent = 'Ошибка: файл отсутствует.';
+                    fileWarning.style.display = 'block';
+                    event.preventDefault();
+                }
+            });
+        });
 
 
         function checkFileSelection() {
@@ -226,15 +240,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isFreelancer && !$hasApplied) {
     <p><?php echo nl2br(htmlspecialchars($vacancy['Description'])); ?></p>
     <p><strong>Зарплата: </strong><?php echo htmlspecialchars($vacancy['Salary']); ?> руб.</p>
     <p><strong>Автор вакансии: </strong><?php echo htmlspecialchars($vacancy['author_name']); ?></p>
+    <p><strong>Кол-во просмотров: </strong><?php echo htmlspecialchars($vacancy['views']); ?></p>
 
     <?php if ($isFreelancer && !$hasApplied): ?>
-        <form method="POST" enctype="multipart/form-data" onsubmit="validateFile();">
+        <form method="POST" enctype="multipart/form-data">
             <textarea name="cover_letter" placeholder="Мотивационное письмо" required></textarea>
-            <label for="attachment">Прикрепить файл (PDF, TXT, DOC, DOCX):</label>
-            <input type="file" name="attachment" id="attachment"accept=".pdf,.txt,.doc,.docx" onchange="validateFile(); checkFileSelection(); ">
+            <label for="attachment" class="file-upload-label">
+                <span class="label-text">Выберите файл</span>
+                <input type="file" name="attachment" id="attachment" accept=".pdf,.txt,.doc,.docx" onchange="validateFileAndStore()" style="display: none;">
+            </label>
+
             <div id="fileWarning" style="color: red; display: none;"></div>
-            <input type="submit"  style="display: none" value="Отправить отклик" id="submitButton">
+            <input type="hidden" id="fileData" name="fileData">
+            <input type="submit" style="display: none" value="Отправить отклик" id="submitButton">
         </form>
+
 
     <?php elseif ($hasApplied): ?>
         <p>Вы уже откликнулись на эту вакансию.</p>
@@ -245,3 +265,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isFreelancer && !$hasApplied) {
 
 </body>
 </html>
+

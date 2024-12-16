@@ -1,29 +1,8 @@
 <?php
-
+include_once '../includes/crypt.php';
 ob_start();  // Start output buffering
 // Функция для шифрования с использованием шифра Виженера
-function vigenereEncryptUser($data, $key) {
-    $encrypted = '';
 
-    for ($i = 0; $i < strlen($data); $i++) {
-        $dataChar = $data[$i];
-        $encrypted .= chr(((ord($dataChar) + $key) % 256));
-    }
-
-    return base64_encode($encrypted);  // Возвращаем зашифрованные данные в base64
-}
-function vigenereDecryptUser($data, $key) {
-    $data = base64_decode($data);  // Декодируем из base64
-    $decrypted = '';
-
-    for ($i = 0; $i < strlen($data); $i++) {
-        $dataChar = $data[$i];
-
-        $decrypted .= chr(((ord($dataChar) - $key + 256) % 256));
-    }
-
-    return $decrypted;
-}
 // Функция для обновления истории пользователей
 function updateUserHistory($userId, $username, $userIdVisited) {
     if (empty($username)) {
@@ -105,7 +84,7 @@ function displayUserHistory($userId) {
     echo '</div>';
     echo '</div>';
 }
-// Функция для дешифрования с использованием шифра Виженера
+
 
 ?>
 <script>
@@ -130,6 +109,8 @@ function displayUserHistory($userId) {
     // Обновляем время сразу после загрузки страницы и каждые 60 секунд
     document.addEventListener("DOMContentLoaded", updateTimeAgo);
     setInterval(updateTimeAgo, 60000);
+  // Очищаем буфер без вывода
+
 </script>
 <style>
     /* Стиль для блока истории с уникальным id */

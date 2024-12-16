@@ -1,0 +1,17 @@
+{
+    "name": "malirucos/freelance",
+    "autoload": {
+        "psr-4": {
+            "Malirucos\\Freelance\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Malirucos",
+            "email": "makshvashevskiyi@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^11.4"
+    }
+}
